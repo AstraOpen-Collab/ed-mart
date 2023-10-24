@@ -3,7 +3,7 @@ services:
     container_name: ed-mart
     image: postgres
     environment:
-      POSTGRES_USER: ed-mart
+      POSTGRES_USER: edmart
       POSTGRES_PASSWORD: password
       PGDATA: /data/postgres
     volumes:
