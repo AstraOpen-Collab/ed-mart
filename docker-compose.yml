@@ -1,0 +1,154 @@
+services:
+  postgres:
+    container_name: ed-mart
+    image: postgres
+    environment:
+      POSTGRES_USER: ed-mart
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5433:5432"
+    networks:
+      - postgres
+    restart: 'unless-stopped'
+
+  pgadmin:
+    container_name: pgadmin-edmart
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - postgres
+    restart: 'unless-stopped'
+
+#  mysql-db:
+#    image: mysql:5.7
+#    restart: always
+#    environment:
+#      MYSQL_DATABASE: 'product-server'
+#      # So you don't have to use root, but you can if you like
+#      MYSQL_USER: 'user'
+#      # You can use whatever password you like
+#      MYSQL_PASSWORD: 'password'
+#      # Password for root access
+#      MYSQL_ROOT_PASSWORD: 'password'
+#    ports:
+#      # <Port exposed> : <MySQL Port running inside container>
+#      - '3306:3306'
+#    expose:
+#      # Opens port 3306 on the container
+#      - '3306'
+#      # Where our data will be persisted
+#    volumes:
+#      - my-db:/var/lib/mysql
+#
+#  phpmyadmin:
+#    image: phpmyadmin/phpmyadmin
+#    restart: always
+#    environment:
+#      PMA_HOST: mysql-db
+#      PMA_PORT: 3306
+#      PMA_ARBITRARY: 1
+#    ports:
+#      - "8077:80"
+#    depends_on:
+#      - mysql-db
+
+#  redis-stack-server:
+#    image: redis/redis-stack:latest
+#    volumes:
+#      - redis-data:/data
+#    ports:
+#      - 6379:6379
+#      - 8050:8001
+#    networks:
+#      - redis-network
+#    restart: always
+
+#  sonarqube:
+#    container_name: sonarqube-inventics
+#    image: sonarqube
+#    ports:
+#      - "9000:9000"
+#    networks:
+#      - postgres
+#    restart: 'unless-stopped'
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin-ed-mart
+    ports:
+      - "9411:9411"
+    networks:
+      - spring
+
+#  zookeeper:
+#    image: confluentinc/cp-zookeeper:latest
+#    container_name: zookeeper
+#    environment:
+#      ZOOKEEPER_SERVER_ID: 1
+#      ZOOKEEPER_CLIENT_PORT: 2181
+#      ZOOKEEPER_TICK_TIME: 2000
+#    ports:
+#      - "22181:2181"
+#    networks:
+#      - kafka-network
+#
+#  broker:
+#    image: confluentinc/cp-kafka:latest
+#    container_name: broker
+#    ports:
+#      - "9092:9092"
+#    depends_on:
+#      - zookeeper
+#    environment:
+#      KAFKA_BROKER_ID: 1
+#      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+#      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#    networks:
+#      - kafka-network
+#
+#
+#  kafka-ui:
+#    container_name: kafka-ui
+#    image: provectuslabs/kafka-ui:latest
+#    ports:
+#      - 8066:8080
+#    depends_on:
+#      - broker
+#    environment:
+#      DYNAMIC_CONFIG_ENABLED: 'true'
+#      KAFKA_CLUSTERS_0_NAME: inventics-flow
+#      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: broker:9092
+#    networks:
+#      - kafka-network
+
+networks:
+  postgres:
+    driver: bridge
+#  sonarqube:
+#    driver: bridge
+#  redis-network:
+#    driver: bridge
+#  spring:
+#    driver: bridge
+#  kafka-network:
+#    driver: bridge
+
+volumes:
+  postgres:
+  pgadmin:
+#  my-db:
+#  redis-data:
+#    external: false
