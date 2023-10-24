@@ -2,16 +2,18 @@
 
 Welcome to ed-mart. A distributed event-driven digital marketplace, where buyers and sellers seamlessly connect in real-time! Leveraging the power of Red Hat OpenShift, Openvino, Kafka, Java, and Spring Boot.
 
+### Description
+
+The ed-mart project is inspired by the 2023 DevPost Hackathon under the codeshift challenge sponsored by [Redhat](https://www.redhat.com/en/technologies/cloud-computing/openshift) and [intel](https://www.intel.com/content/www/us/en/developer/tools/openvino-toolkit/overview.html) for open collaboration challenge and career advancement under [AstraOpenCollab](https://inventicsflow.slack.com/archives/C05UETHQ8QG) community.
+This project is under continuous development using Java, Spring Boot, Spark, Openshift, Kafka and other tools to be added as development continues. It follows a microservices architecture where each service is designed to handle a specific functionality. The project utilizes various tools and technologies to enhance scalability, fault tolerance, and communication between services.
+
+### Architectural Design
+
 <p align="center">
     <img src="/ed-mart-platform.png" alt="ed-mart high level system design">
     <br />
     ed-mart - high level system Design
 </p>
-
-### Description
-
-The ed-mart project is inspired by the 2023 DevPost Hackathon under the codeshift challenge sponsored by [Redhat](https://www.redhat.com/en/technologies/cloud-computing/openshift) and [intel](https://www.intel.com/content/www/us/en/developer/tools/openvino-toolkit/overview.html) for open collaboration challenge and career advancement under [AstraOpenCollab](https://inventicsflow.slack.com/archives/C05UETHQ8QG) community. 
-This project is under continuous development using Java, Spring Boot, Spark, Openshift, Kafka and other tools to be added as development continues. It follows a microservices architecture where each service is designed to handle a specific functionality. The project utilizes various tools and technologies to enhance scalability, fault tolerance, and communication between services.
 
 ### Technologies and Patterns Used
 
