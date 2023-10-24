@@ -83,8 +83,8 @@ If you encounter any issues or need additional information, feel free to refer t
 
 ### Contributing
 
-If you wish to contribute to the inventics-flow project, please follow the guidelines outlined in the [Contribution Guide](community-guildelines.md).
+If you wish to contribute to the ed-mart project, please follow the guidelines outlined in the [Contribution Guide](community-guildelines.md).
 
 ### License
 
-The inventics-flow project is licensed under the [MIT License]().
+The ed-mart project is licensed under the [Apache License, Version 2.0](https://opensource.org/license/apache-2-0/).
