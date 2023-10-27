@@ -5,6 +5,7 @@ target/
 
 ### github
 .github
+.gitignore
 
 ### IntelliJ IDEA ###
 .idea
