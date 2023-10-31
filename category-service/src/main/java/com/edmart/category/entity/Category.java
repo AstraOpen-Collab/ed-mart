@@ -13,9 +13,16 @@ import javax.persistence.*;
 @Table(name = "category")
 public class Category extends BaseEntity {
 
-    @Column
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(
+            name = "category_id_sequence",
+            sequenceName = "category_id_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "category_id_sequence"
+    )
     private Long categoryId;
 
     @Column

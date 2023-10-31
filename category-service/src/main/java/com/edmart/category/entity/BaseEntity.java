@@ -1,27 +1,19 @@
 package com.edmart.category.entity;
 
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import javax.persistence.MappedSuperclass;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import java.time.LocalDateTime;
 
 @Data
 @MappedSuperclass
 public class BaseEntity {
 
+    @CreationTimestamp
     protected LocalDateTime createdAt;
+
+    @UpdateTimestamp
     protected LocalDateTime updatedAt;
-
-    @PrePersist
-    public  void prePersist(){
-        LocalDateTime localDateTime=LocalDateTime.now();
-        this.createdAt=localDateTime;
-        this.updatedAt=localDateTime;
-    }
-
-    @PreUpdate
-    public void preUpdate(){
-        this.updatedAt=LocalDateTime.now();
-    }
 }
