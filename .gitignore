@@ -3,6 +3,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### github
+.github
+.gitignore
+
 ### IntelliJ IDEA ###
 .idea
 .idea/modules.xml
