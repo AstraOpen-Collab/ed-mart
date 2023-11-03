@@ -40,6 +40,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.ed-mart</groupId>
+            <artifactId>ed-mart</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>1.5.5.Final</version>
