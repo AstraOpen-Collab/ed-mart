@@ -7,5 +7,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>clients</artifactId>
-    <name>Archetype - clients</name>
+    <name>clients</name>
+
 </project>
