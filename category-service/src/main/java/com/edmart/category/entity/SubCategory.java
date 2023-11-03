@@ -5,17 +5,23 @@ import javax.persistence.*;
 import lombok.*;
 
 @Entity
-@Getter
-@Setter
-@ToString
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "sub-category")
+@Table(name = "subcategory")
 public class SubCategory extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(
+            name = "subcategory_id_sequence",
+            sequenceName = "subcategory_id_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "subcategory_id_sequence"
+    )
     private Long id;
 
     @Column(nullable = false)
