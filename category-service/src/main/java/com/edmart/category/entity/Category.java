@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,11 +27,14 @@ public class Category extends BaseEntity {
     private Long categoryId;
 
     @Column
-    private  String categoryName;
+    private String categoryName;
 
     @Column
     private String categoryDescription;
 
     @Column
     private String categoryDesignation;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    List<SubCategory> subCategories;
 }
