@@ -1,16 +1,15 @@
 package com.edmart.category.service;
 
 import com.edmart.category.dto.CategoryDTO;
+import com.edmart.category.dto.CategoryResponseDTO;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public interface CategoryService {
 
     void createCategory(CategoryDTO categoryDTO);
 
-    List<CategoryDTO> getAllCategories();
+    CategoryResponseDTO getAllCategories(int page, int size);
 
     CategoryDTO getCategory(Long categoryId);
 

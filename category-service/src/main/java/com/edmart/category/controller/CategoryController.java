@@ -1,13 +1,12 @@
 package com.edmart.category.controller;
 
 import com.edmart.category.dto.CategoryDTO;
+import com.edmart.category.dto.CategoryResponseDTO;
 import com.edmart.category.service.CategoryService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/categories")
@@ -19,10 +18,10 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<List<CategoryDTO>> getAllCategories(){
-        log.info("Retrieving all categories: {}", categoryService.getAllCategories());
+    public ResponseEntity<CategoryResponseDTO> getAllCategories(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size){
+        log.info("Retrieving all categories: {}", categoryService.getAllCategories(page, size));
 
-        return ResponseEntity.ok().body(categoryService.getAllCategories());
+        return ResponseEntity.ok().body(categoryService.getAllCategories(page, size));
     }
 
     @PostMapping

@@ -2,17 +2,20 @@ package com.edmart.category.serviceImpl;
 
 import com.edmart.category.Mappers.CategoryMapper;
 import com.edmart.category.dto.CategoryDTO;
+import com.edmart.category.dto.CategoryResponseDTO;
 import com.edmart.category.entity.Category;
 import com.edmart.category.exception.CategoryNotFoundException;
 import com.edmart.category.repository.CategoryRepository;
 import com.edmart.category.service.CategoryService;
+import com.edmart.category.utils.Pagination;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -32,10 +35,15 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryDTO> getAllCategories() {
-        return categoryRepository.findAll().stream()
-                .map(CategoryMapper.INSTANCE::mapToCategoryDTO)
-                .collect(Collectors.toList());    }
+    public CategoryResponseDTO getAllCategories(int page, int size) {
+        Page<Category> categoryPage = categoryRepository.findAll(PageRequest.of(page,size, Sort.by("createdAt").descending()));
+
+        CategoryResponseDTO categoryResponseDto=new CategoryResponseDTO();
+        categoryResponseDto.setCategoryList(categoryPage.getContent());
+        categoryResponseDto.setPageInfoDTO(Pagination.getPageInfoDTO(categoryPage));
+
+        return  categoryResponseDto;
+    }
 
     @Override
     public CategoryDTO getCategory(Long categoryId) {
