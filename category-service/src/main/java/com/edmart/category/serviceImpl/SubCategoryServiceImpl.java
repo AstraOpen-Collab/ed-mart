@@ -5,6 +5,7 @@ import com.edmart.category.dto.SubCategoryDTO;
 import com.edmart.category.entity.Category;
 import com.edmart.category.entity.SubCategory;
 import com.edmart.category.exception.CategoryNotFoundException;
+import com.edmart.category.exception.SubCategoryNotFoundException;
 import com.edmart.category.repository.CategoryRepository;
 import com.edmart.category.repository.SubCategoryRepository;
 import com.edmart.category.service.SubCategoryService;
@@ -49,12 +50,14 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 
     @Override
     public SubCategoryDTO getSubCategoryById(Long id) {
-        return SubCategoryMapper.INSTANCE.mapToSubCategoryDTO(fetchSubCategoryById(id));
+        return SubCategoryMapper.INSTANCE.mapToSubCategoryDTO(subCategoryRepository.findById(id).orElseThrow(
+                SubCategoryNotFoundException::new));
     }
 
     @Override
     public void updateSubCategory(Long id, SubCategoryDTO request) {
-        SubCategory subCategory = fetchSubCategoryById(id);
+        SubCategory subCategory = subCategoryRepository.findById(id).orElseThrow(
+                SubCategoryNotFoundException::new);
         try {
             SubCategoryMapper.INSTANCE.mapUpdateToSubCategory(request, subCategory);
             subCategoryRepository.save(subCategory);
@@ -66,13 +69,9 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 
     @Override
     public void deleteSubCategory(Long id) {
-        fetchSubCategoryById(id);
+        subCategoryRepository.findById(id).orElseThrow(
+                SubCategoryNotFoundException::new);
         subCategoryRepository.deleteById(id);
-    }
-
-    private SubCategory fetchSubCategoryById(Long subCategoryId) {
-        return subCategoryRepository.findById(subCategoryId).orElseThrow(
-                () -> new CategoryNotFoundException("Category not found"));
     }
 
     private Category fetchCategoryById(Long categoryId) {
