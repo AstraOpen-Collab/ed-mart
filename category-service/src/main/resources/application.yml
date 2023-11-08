@@ -6,7 +6,7 @@ spring:
     name: category
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/ed-mart # to be changed to postgres:5432/astraworks
+    url: jdbc:postgresql://localhost:5433/edmart # to be changed to postgres:5432/astraworks
     username: edmart
     password: password
   jpa:
@@ -20,7 +20,7 @@ spring:
     generate-ddl: true
 
   zipkin:
-    base-url: http://localhost:9411
+    base-url: http://localhost:9412
 
   redis:
     host: localhost
@@ -35,6 +35,8 @@ eureka:
       defaultZone: http://localhost:8761/eureka
     fetch-registry: true
     register-with-eureka: true
+  instance:
+    hostname: localhost
 
 
 
