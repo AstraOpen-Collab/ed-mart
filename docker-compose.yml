@@ -24,7 +24,7 @@ services:
     volumes:
       - pgadmin:/var/lib/pgadmin
     ports:
-      - "5050:80"
+      - "5051:80"
     networks:
       - postgres
     restart: 'unless-stopped'
@@ -86,7 +86,7 @@ services:
     image: openzipkin/zipkin
     container_name: zipkin-ed-mart
     ports:
-      - "9411:9411"
+      - "9412:9411"
     networks:
       - spring
 
@@ -141,8 +141,8 @@ networks:
 #    driver: bridge
 #  redis-network:
 #    driver: bridge
-#  spring:
-#    driver: bridge
+  spring:
+    driver: bridge
 #  kafka-network:
 #    driver: bridge
 

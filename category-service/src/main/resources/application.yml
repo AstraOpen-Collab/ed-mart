@@ -6,12 +6,12 @@ spring:
     name: category
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/ed-mart # to be changed to postgres:5432/astraworks
+    url: jdbc:postgresql://localhost:5432/ed-mart # to be changed to postgres:5432/astraworks
     username: edmart
     password: password
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
