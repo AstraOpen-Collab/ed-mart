@@ -8,6 +8,7 @@
   <modules>
       <module>category-service</module>
     <module>eureka-server</module>
+      <module>apigw</module>
   </modules>
   <name>ed-mart</name>
 

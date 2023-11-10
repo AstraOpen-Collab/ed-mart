@@ -48,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDTO getCategory(Long categoryId) {
         return categoryRepository.findById(categoryId)
-                .map(category -> CategoryMapper.INSTANCE.mapToCategoryDTO(category))
+                .map(CategoryMapper.INSTANCE::mapToCategoryDTO)
                 .orElseThrow(() -> new CategoryNotFoundException("Category not found"));
     }
 
@@ -56,7 +56,7 @@ public class CategoryServiceImpl implements CategoryService {
     public void updateCategory(Long categoryId, CategoryDTO categoryDTO) {
         try {
             Optional<Category> categoryOptional = categoryRepository.findById(categoryId);
-            if (!categoryOptional.isPresent()) {
+            if (categoryOptional.isEmpty()) {
                 throw new CategoryNotFoundException("Category not found");
             }
             Category category = categoryOptional.get();
@@ -71,7 +71,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteCategory(Long categoryId) {
         Optional<Category> categoryOptional=categoryRepository.findById(categoryId);
-        if(!categoryOptional.isPresent()){
+        if(categoryOptional.isEmpty()){
             throw new CategoryNotFoundException("Category not found");
         }
         categoryRepository.deleteById(categoryId);
