@@ -12,9 +12,11 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -24,19 +26,32 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    @Override
-    public void createCategory(CategoryDTO categoryDTO) {
-        try {
-            categoryRepository.save(CategoryMapper.INSTANCE.mapToCategory(categoryDTO));
+    private final CategoryMapper categoryMapper;
 
-        }catch (Exception e){
-            log.error("Error creating category with name {} caused by {}",categoryDTO.categoryName(),e.getCause());
+
+    @Override
+    public void createCategory(CategoryDTO categoryDTO) throws CategoryNotFoundException {
+        Category category = new Category();
+        try{
+            category.setCategoryName(categoryDTO.categoryName());
+            category.setCategoryDescription(categoryDTO.categoryDescription());
+            category.setCategoryDesignation(categoryDTO.categoryDesignation());
+
+            categoryRepository.save(category);
+        }catch(Exception e){
+            log.error("Error Creating category with name {} caused by {}", categoryDTO.categoryName(), e.getCause());
         }
     }
 
     @Override
-    public CategoryResponseDTO getAllCategories(int page, int size) {
-        Page<Category> categoryPage = categoryRepository.findAll(PageRequest.of(page,size, Sort.by("createdAt").descending()));
+    public CategoryResponseDTO getAllCategories(int page, int size,String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.DESC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Category> categoryPage = categoryRepository.findAll(pageable);
 
         CategoryResponseDTO categoryResponseDto=new CategoryResponseDTO();
         categoryResponseDto.setCategoryList(categoryPage.getContent());
@@ -46,34 +61,49 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDTO getCategory(Long categoryId) {
-        return categoryRepository.findById(categoryId)
-                .map(CategoryMapper.INSTANCE::mapToCategoryDTO)
-                .orElseThrow(() -> new CategoryNotFoundException("Category not found"));
+    public CategoryDTO getCategory(Long categoryId) throws CategoryNotFoundException {
+        Optional<CategoryDTO> categoryDTOOptional = categoryRepository.findById(categoryId)
+                .map(categoryMapper);
+        if(categoryDTOOptional.isPresent()){
+            return categoryDTOOptional.get();
+        }else{
+            throw new CategoryNotFoundException("No Category exist with this Id");
+        }
     }
 
     @Override
-    public void updateCategory(Long categoryId, CategoryDTO categoryDTO) {
-        try {
-            Optional<Category> categoryOptional = categoryRepository.findById(categoryId);
-            if (categoryOptional.isEmpty()) {
-                throw new CategoryNotFoundException("Category not found");
+    public void updateCategory(Long categoryId, CategoryDTO categoryDTO) throws CategoryNotFoundException {
+        try{
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(()->new CategoryNotFoundException("Category does not exist"));
+
+            if(Objects.nonNull(categoryDTO.categoryName())
+                    && !"".equalsIgnoreCase(categoryDTO.categoryName())){
+                category.setCategoryName(categoryDTO.categoryName());
             }
-            Category category = categoryOptional.get();
+            if(Objects.nonNull(categoryDTO.categoryDescription())
+                    && !"".equalsIgnoreCase(categoryDTO.categoryDescription())){
+                category.setCategoryDescription(categoryDTO.categoryDescription());
+            }
+            if(Objects.nonNull(categoryDTO.categoryDesignation())
+                    && !"".equalsIgnoreCase(categoryDTO.categoryDesignation())){
+                category.setCategoryDesignation(categoryDTO.categoryDesignation());
+            }
 
-            CategoryMapper.INSTANCE.mapUpdateToCategory(categoryDTO, category);
             categoryRepository.save(category);
-        }catch (Exception e){
-            log.error("Error updating category with Id {} caused by {}",categoryId,e.getCause());
+        }catch(Exception ex){
+            log.error("Error updating category with name {} caused by {}", categoryDTO.categoryName(), ex.getMessage());
         }
     }
 
     @Override
-    public void deleteCategory(Long categoryId) {
-        Optional<Category> categoryOptional=categoryRepository.findById(categoryId);
-        if(categoryOptional.isEmpty()){
-            throw new CategoryNotFoundException("Category not found");
+    public void deleteCategory(Long categoryId) throws CategoryNotFoundException {
+        Optional<CategoryDTO> categoryDTOOptional = categoryRepository.findById(categoryId).map(categoryMapper);
+
+        if(categoryDTOOptional.isPresent()){
+            categoryRepository.deleteById(categoryId);
+        }else{
+            throw new CategoryNotFoundException("Category with this Id does not exist");
         }
-        categoryRepository.deleteById(categoryId);
     }
 }

@@ -1,3 +1,4 @@
 package com.edmart.category.dto;
 
-public record CategoryDTO(String categoryName,String categoryDescription, String categoryDesignation) {}
+public record CategoryDTO(Long categoryId,String categoryName,
+                          String categoryDescription, String categoryDesignation) {}

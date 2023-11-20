@@ -11,5 +11,7 @@ public class PageInfoDTO {
     long totalElements;
     long totalPages;
     long currentPage;
+    private boolean last;
+    private long pageSize;
 }
 

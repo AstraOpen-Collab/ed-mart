@@ -10,6 +10,8 @@ public class Pagination {
         pageInfoDTO.setCurrentPage(page.getNumber());
         pageInfoDTO.setTotalPages(page.getTotalPages());
         pageInfoDTO.setTotalElements(page.getTotalElements());
+        pageInfoDTO.setPageSize(page.getSize());
+        pageInfoDTO.setLast(page.isLast());
 
         return pageInfoDTO;
     }
