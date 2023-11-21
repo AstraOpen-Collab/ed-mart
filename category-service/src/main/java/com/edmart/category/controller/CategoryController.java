@@ -21,7 +21,7 @@ public class CategoryController {
     @GetMapping
     public ResponseEntity<CategoryResponseDTO> getAllCategories(@RequestParam(defaultValue = "0") int page,
                                                                 @RequestParam(defaultValue = "5") int size,
-                                                                @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
+                                                                @RequestParam(value = "sortBy", defaultValue = "createdAt", required = false) String sortBy,
                                                                 @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir){
         log.info("Retrieving all categories: {}", categoryService.getAllCategories(page, size,sortBy, sortDir));
 
