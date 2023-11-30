@@ -10,14 +10,20 @@ import com.edmart.category.service.CategoryService;
 import com.edmart.category.utils.Pagination;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.beans.PropertyDescriptor;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -77,18 +83,7 @@ public class CategoryServiceImpl implements CategoryService {
             Category category = categoryRepository.findById(categoryId)
                     .orElseThrow(()->new CategoryNotFoundException("Category does not exist"));
 
-            if(Objects.nonNull(categoryDTO.categoryName())
-                    && !"".equalsIgnoreCase(categoryDTO.categoryName())){
-                category.setCategoryName(categoryDTO.categoryName());
-            }
-            if(Objects.nonNull(categoryDTO.categoryDescription())
-                    && !"".equalsIgnoreCase(categoryDTO.categoryDescription())){
-                category.setCategoryDescription(categoryDTO.categoryDescription());
-            }
-            if(Objects.nonNull(categoryDTO.categoryDesignation())
-                    && !"".equalsIgnoreCase(categoryDTO.categoryDesignation())){
-                category.setCategoryDesignation(categoryDTO.categoryDesignation());
-            }
+            BeanUtils.copyProperties(categoryDTO, category, getNullPropertyNames(categoryDTO));
 
             categoryRepository.save(category);
         }catch(Exception ex){
@@ -106,4 +101,18 @@ public class CategoryServiceImpl implements CategoryService {
             throw new CategoryNotFoundException("Category with this Id does not exist");
         }
     }
-}
+
+    private String[] getNullPropertyNames(CategoryDTO categoryDTO) {
+        BeanWrapper beanWrapper = new BeanWrapperImpl(categoryDTO);
+        PropertyDescriptor[] propertyDescriptors = beanWrapper.getPropertyDescriptors();
+
+        Set<String> nullProperties = new HashSet<>();
+        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+            String propertyName = propertyDescriptor.getName();
+            if (beanWrapper.getPropertyValue(propertyName) == null) {
+                nullProperties.add(propertyName);
+            }
+        }
+        return nullProperties.toArray(new String[0]);
+    }
+    }
