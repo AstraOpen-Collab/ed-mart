@@ -9,6 +9,7 @@ spring:
     url: jdbc:postgresql://localhost:5433/edmart # to be changed to postgres:5432/astraworks
     username: edmart
     password: password
+
   jpa:
     hibernate:
       ddl-auto: create

@@ -2,28 +2,22 @@ package com.edmart.category.Mappers;
 
 import com.edmart.category.dto.CategoryDTO;
 import com.edmart.category.entity.Category;
-import org.mapstruct.InheritConfiguration;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.ReportingPolicy;
-import org.mapstruct.factory.Mappers;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.function.Function;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.WARN)
-public interface CategoryMapper {
 
-    CategoryMapper INSTANCE = Mappers.getMapper(CategoryMapper.class);
+@Service
+public class CategoryMapper implements Function<Category, CategoryDTO> {
 
-    Category mapToCategory(CategoryDTO categoryDTO);
-
-    @InheritConfiguration
-    CategoryDTO mapToCategoryDTO(Category category);
-
-    @InheritConfiguration
-    List<CategoryDTO> mapToCategoryDTOs(List<Category> category);
-
-    @InheritConfiguration
-    void mapUpdateToCategory(CategoryDTO categoryDTO, @MappingTarget Category category);
+    @Override
+    public CategoryDTO apply(Category category) {
+        return new CategoryDTO(
+                category.getCategoryId(),
+                category.getCategoryName(),
+                category.getCategoryDescription(),
+                category.getCategoryDesignation()
+        );
+    }
 }
 
