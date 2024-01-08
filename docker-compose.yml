@@ -151,5 +151,5 @@ volumes:
   postgres:
   pgadmin:
   my-db:
-#  redis-data:
+#  redis-data: -d
 #    external: false
