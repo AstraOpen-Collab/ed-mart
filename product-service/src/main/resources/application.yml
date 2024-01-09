@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: product
+    name: product-service
 
   datasource:
     url: jdbc:postgresql://localhost:5433/edmart # to be changed to postgres:5432/astraworks
@@ -12,7 +12,7 @@ spring:
     password: password
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -25,10 +25,15 @@ spring:
 
   redis:
     host: localhost
-    port: 6379
-    password: password
-  #    database: 0
-  #    timeout: 60000
+    port: 6380
+    database: 1
+    timeout: 3600
+    jedis:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 2
+        max-wait: -1
 
 eureka:
   client:

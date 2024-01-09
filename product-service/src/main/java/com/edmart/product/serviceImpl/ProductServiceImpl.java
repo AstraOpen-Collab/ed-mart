@@ -13,6 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,11 +37,11 @@ public class ProductServiceImpl implements ProductService {
     private final ProductMapper productMapper;
 
     @Override
+    @CacheEvict(value = "product", allEntries = true)
     public void createProduct(ProductDTO productDTO) throws ProductNotFoundException {
         Product product = new Product();
 
         try{
-            product.setProductId(productDTO.productId());
             product.setCategoryId(productDTO.categoryId());
             product.setDescription(productDTO.description());
             product.setImage(productDTO.image());
@@ -57,6 +60,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(cacheNames = "products")
     public ProductResponseDTO getAllProducts(int page, int size, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.DESC.name())
                 ? Sort.by(sortBy).ascending()
@@ -74,6 +78,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(cacheNames = "products", key = "#productId")
     public ProductDTO getProduct(Long productId) throws ProductNotFoundException {
         Optional<ProductDTO> productDTOOptional = productRepository.findById(productId)
                 .map(productMapper);
@@ -85,6 +90,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CachePut(cacheNames = "products", key = "#productId")
     public void updateProduct(Long productId, ProductDTO productDTO) throws ProductNotFoundException {
         try{
             Product product = productRepository.findById(productId)
@@ -99,6 +105,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "products", key = "#productId", beforeInvocation = true)
     public void deleteProduct(Long productId) throws ProductNotFoundException {
         Optional<ProductDTO> productDTOOptional = productRepository.findById(productId).map(productMapper);
 

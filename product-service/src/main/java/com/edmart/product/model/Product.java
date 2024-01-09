@@ -5,13 +5,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Data
 @Table(name = "product")
-public class Product extends BaseEntity {
+public class Product extends BaseEntity implements Serializable {
 
     @Id
     @SequenceGenerator(

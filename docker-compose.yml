@@ -61,16 +61,16 @@ services:
     depends_on:
       - mysql-db
 
-#  redis-stack-server:
-#    image: redis/redis-stack:latest
-#    volumes:
-#      - redis-data:/data
-#    ports:
-#      - 6379:6379
-#      - 8050:8001
-#    networks:
-#      - redis-network
-#    restart: always
+  redis-stack-server:
+    image: redis/redis-stack:latest
+    volumes:
+      - redis-data:/data
+    ports:
+      - 6380:6379
+      - 8055:8001
+    networks:
+      - redis-network
+    restart: always
 
 #  sonarqube:
 #    container_name: sonarqube-inventics
@@ -140,8 +140,8 @@ networks:
     driver: bridge
 #  sonarqube:
 #    driver: bridge
-#  redis-network:
-#    driver: bridge
+  redis-network:
+    driver: bridge
   spring:
     driver: bridge
 #  kafka-network:
@@ -151,5 +151,5 @@ volumes:
   postgres:
   pgadmin:
   my-db:
-#  redis-data: -d
-#    external: false
+  redis-data:
+    external: false

@@ -9,6 +9,7 @@
       <module>category-service</module>
     <module>eureka-server</module>
       <module>apigw</module>
+    <module>product-service</module>
   </modules>
   <name>ed-mart</name>
 
@@ -45,10 +46,6 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
     </dependency>
   </dependencies>
 
@@ -103,15 +100,5 @@
 
       </plugins>
     </pluginManagement>
-      <plugins>
-          <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-compiler-plugin</artifactId>
-              <configuration>
-                  <source>16</source>
-                  <target>16</target>
-              </configuration>
-          </plugin>
-      </plugins>
   </build>
 </project>
