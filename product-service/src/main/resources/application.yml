@@ -7,7 +7,7 @@ spring:
     name: product-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/edmart # to be changed to postgres:5432/astraworks
+    url: jdbc:postgresql://localhost:5433/edmart
     username: edmart
     password: password
   jpa:

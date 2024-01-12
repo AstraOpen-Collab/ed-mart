@@ -2,7 +2,11 @@ package com.edmart.category.entity;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.netflix.discovery.provider.Serializer;
 import lombok.*;
+
+import java.io.Serializable;
 
 @Entity
 @Data
@@ -10,7 +14,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "subcategory")
-public class SubCategory extends BaseEntity {
+public class SubCategory extends BaseEntity implements Serializable {
 
     @Id
     @SequenceGenerator(
@@ -22,11 +26,19 @@ public class SubCategory extends BaseEntity {
             strategy = GenerationType.SEQUENCE,
             generator = "subcategory_id_sequence"
     )
-    private Long id;
+    private Long subCategoryId;
 
     @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
     private String description;
+
+    @JsonIgnore
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "category_id",
+            referencedColumnName = "categoryId"
+    )
+    private Category category;
 }

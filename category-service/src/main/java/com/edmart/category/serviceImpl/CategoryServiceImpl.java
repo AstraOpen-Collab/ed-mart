@@ -1,6 +1,7 @@
 package com.edmart.category.serviceImpl;
 
 import com.edmart.category.Mappers.CategoryMapper;
+import com.edmart.category.client.CommonOperations;
 import com.edmart.category.dto.CategoryDTO;
 import com.edmart.category.dto.CategoryResponseDTO;
 import com.edmart.category.entity.Category;
@@ -11,19 +12,16 @@ import com.edmart.category.utils.Pagination;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.beans.PropertyDescriptor;
-import java.util.HashSet;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -34,8 +32,11 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryMapper categoryMapper;
 
+    private final CommonOperations commonOperations;
+
 
     @Override
+    @CacheEvict(value = "category", allEntries = true)
     public void createCategory(CategoryDTO categoryDTO) throws CategoryNotFoundException {
         Category category = new Category();
         try{
@@ -50,6 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Cacheable(cacheNames = "category")
     public CategoryResponseDTO getAllCategories(int page, int size,String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.DESC.name())
                 ? Sort.by(sortBy).ascending()
@@ -67,23 +69,20 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDTO getCategory(Long categoryId) throws CategoryNotFoundException {
-        Optional<CategoryDTO> categoryDTOOptional = categoryRepository.findById(categoryId)
-                .map(categoryMapper);
-        if(categoryDTOOptional.isPresent()){
-            return categoryDTOOptional.get();
-        }else{
-            throw new CategoryNotFoundException("No Category exist with this Id");
-        }
+    @Cacheable(cacheNames = "category", key = "#categoryId")
+    public Optional<CategoryDTO> getCategory(Long categoryId) throws CategoryNotFoundException {
+        return Optional.ofNullable(categoryRepository.findById(categoryId)
+                .map(categoryMapper).orElseThrow(() -> new CategoryNotFoundException("Category does not exist!!")));
     }
 
     @Override
+    @CachePut(cacheNames = "category", key = "#categoryId")
     public void updateCategory(Long categoryId, CategoryDTO categoryDTO) throws CategoryNotFoundException {
         try{
             Category category = categoryRepository.findById(categoryId)
                     .orElseThrow(()->new CategoryNotFoundException("Category does not exist"));
 
-            BeanUtils.copyProperties(categoryDTO, category, getNullPropertyNames(categoryDTO));
+            BeanUtils.copyProperties(categoryDTO, category, commonOperations.getNullPropertyNames(categoryDTO));
 
             categoryRepository.save(category);
         }catch(Exception ex){
@@ -92,6 +91,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "category", key = "#categoryId", beforeInvocation = true)
     public void deleteCategory(Long categoryId) throws CategoryNotFoundException {
         Optional<CategoryDTO> categoryDTOOptional = categoryRepository.findById(categoryId).map(categoryMapper);
 
@@ -102,17 +102,4 @@ public class CategoryServiceImpl implements CategoryService {
         }
     }
 
-    private String[] getNullPropertyNames(CategoryDTO categoryDTO) {
-        BeanWrapper beanWrapper = new BeanWrapperImpl(categoryDTO);
-        PropertyDescriptor[] propertyDescriptors = beanWrapper.getPropertyDescriptors();
-
-        Set<String> nullProperties = new HashSet<>();
-        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
-            String propertyName = propertyDescriptor.getName();
-            if (beanWrapper.getPropertyValue(propertyName) == null) {
-                nullProperties.add(propertyName);
-            }
-        }
-        return nullProperties.toArray(new String[0]);
-    }
     }

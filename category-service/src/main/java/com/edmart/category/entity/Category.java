@@ -1,10 +1,13 @@
 package com.edmart.category.entity;
 
+import com.edmart.category.dto.SubCategoryDTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 @AllArgsConstructor
@@ -12,7 +15,7 @@ import java.util.List;
 @Entity
 @Data
 @Table(name = "category")
-public class Category extends BaseEntity {
+public class Category extends BaseEntity implements Serializable {
 
     @Id
     @SequenceGenerator(
@@ -35,6 +38,11 @@ public class Category extends BaseEntity {
     @Column
     private String categoryDesignation;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    List<SubCategory> subCategories;
+    @OneToMany(
+            mappedBy = "category",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
+    @JsonIgnore
+    private List<SubCategory> subCategories;
 }

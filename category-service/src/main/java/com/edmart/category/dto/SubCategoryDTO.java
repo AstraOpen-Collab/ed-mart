@@ -1,4 +1,11 @@
 package com.edmart.category.dto;
 
-public record SubCategoryDTO(String name, String description) {
+import com.edmart.category.entity.Category;
+
+import java.io.Serializable;
+
+public record SubCategoryDTO(
+        String name,
+        String description,
+        Category category) implements Serializable {
 }

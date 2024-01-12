@@ -16,7 +16,8 @@ public class CategoryMapper implements Function<Category, CategoryDTO> {
                 category.getCategoryId(),
                 category.getCategoryName(),
                 category.getCategoryDescription(),
-                category.getCategoryDesignation()
+                category.getCategoryDesignation(),
+                category.getSubCategories()
         );
     }
 }

@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/v1/categories")
 @CrossOrigin
@@ -38,7 +40,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{Id}")
-    public ResponseEntity<CategoryDTO> getCategoryById(@PathVariable("Id") Long Id) throws CategoryNotFoundException {
+    public ResponseEntity<Optional<CategoryDTO>> getCategoryById(@PathVariable("Id") Long Id) throws CategoryNotFoundException {
         log.info("Retrieving a category with Id: {}", Id);
 
         return ResponseEntity.ok().body(categoryService.getCategory(Id));

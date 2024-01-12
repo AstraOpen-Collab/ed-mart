@@ -5,6 +5,8 @@ import com.edmart.category.dto.CategoryResponseDTO;
 import com.edmart.category.exception.CategoryNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public interface CategoryService {
 
@@ -12,7 +14,7 @@ public interface CategoryService {
 
     CategoryResponseDTO getAllCategories(int page, int size,String sortBy, String sortDir);
 
-    CategoryDTO getCategory(Long categoryId) throws CategoryNotFoundException;
+    Optional<CategoryDTO> getCategory(Long categoryId) throws CategoryNotFoundException;
 
     void updateCategory(Long categoryId, CategoryDTO categoryDTO) throws CategoryNotFoundException;
 
