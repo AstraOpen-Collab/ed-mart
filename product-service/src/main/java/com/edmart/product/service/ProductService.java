@@ -2,7 +2,7 @@ package com.edmart.product.service;
 
 import com.edmart.product.dto.ProductDTO;
 import com.edmart.product.dto.ProductResponseDTO;
-import com.edmart.product.exception.ProductNotFoundException;
+import com.edmart.client.exceptions.ProductNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service

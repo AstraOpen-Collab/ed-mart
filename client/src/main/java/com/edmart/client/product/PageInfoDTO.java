@@ -1,4 +1,4 @@
-package com.edmart.product.dto;
+package com.edmart.client.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

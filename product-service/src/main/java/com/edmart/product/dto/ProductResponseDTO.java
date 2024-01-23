@@ -1,6 +1,6 @@
 package com.edmart.product.dto;
 
-import com.edmart.product.model.Product;
+import com.edmart.client.product.PageInfoDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +11,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class ProductResponseDTO implements Serializable {
-    List<Product> productList = new ArrayList<>();
+    List<ProductDTO> productList = new ArrayList<>();
     PageInfoDTO pageInfoDTO;
 }

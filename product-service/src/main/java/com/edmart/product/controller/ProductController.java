@@ -2,7 +2,7 @@ package com.edmart.product.controller;
 
 import com.edmart.product.dto.ProductDTO;
 import com.edmart.product.dto.ProductResponseDTO;
-import com.edmart.product.exception.ProductNotFoundException;
+import com.edmart.client.exceptions.ProductNotFoundException;
 import com.edmart.product.service.ProductService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

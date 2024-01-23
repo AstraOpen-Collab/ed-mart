@@ -15,18 +15,10 @@ import com.edmart.category.service.SubCategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.beans.PropertyDescriptor;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -42,7 +34,7 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     private final CommonOperations commonOperations;
 
     @Override
-    @Cacheable(cacheNames = "subcategory")
+    //@Cacheable(cacheNames = "subcategory")
     public List<SubCategoryDTO> getAllSubCategories() {
         return subCategoryRepository.findAll().stream()
                 .map(subCategoryMapper).toList();
@@ -55,7 +47,7 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     }
 
     @Override
-    @CacheEvict(value = "subcategory", allEntries = true)
+    //@CacheEvict(value = "subcategory", allEntries = true)
     public void createSubCategory(SubCategoryDTO request) {
         SubCategory subCategory = new SubCategory();
         Category category = fetchCategoryById(request.category().getCategoryId());
@@ -74,7 +66,7 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     }
 
     @Override
-    @Cacheable(cacheNames = "subcategory", key = "#id")
+    //@Cacheable(cacheNames = "subcategory", key = "#id")
     public Optional<SubCategoryDTO> getSubCategoryById(Long id) {
 
         return Optional.ofNullable(subCategoryRepository
@@ -84,7 +76,7 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     }
 
     @Override
-    @CachePut(cacheNames = "subcategory", key = "#id")
+    //@CachePut(cacheNames = "subcategory", key = "#id")
     public void updateSubCategory(Long id, SubCategoryDTO request) {
         SubCategory subCategory = subCategoryRepository.findById(id).orElseThrow(
                 SubCategoryNotFoundException::new);
@@ -98,7 +90,7 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     }
 
     @Override
-    @CacheEvict(cacheNames = "subcategory", key = "#id", beforeInvocation = true)
+    //@CacheEvict(cacheNames = "subcategory", key = "#id", beforeInvocation = true)
     public void deleteSubCategory(Long id) {
         subCategoryRepository.findById(id).orElseThrow(
                 SubCategoryNotFoundException::new);

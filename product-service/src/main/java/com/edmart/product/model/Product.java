@@ -1,6 +1,10 @@
 package com.edmart.product.model;
 
+import com.edmart.client.product.Measurements;
+import com.edmart.client.product.Prices;
+import com.edmart.client.product.Units;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +15,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Entity
 @Data
+@Builder
 @Table(name = "product")
 public class Product extends BaseEntity implements Serializable {
 
@@ -39,18 +44,17 @@ public class Product extends BaseEntity implements Serializable {
     @Column
     private Long categoryId;
 
-    @Column
-    private  Long inventoryId;
+    @Embedded
+    private Prices prices;
 
-    @Column
-    private Double price;
+    @Embedded
+    private Units units;
 
-    @Column
-    private Double oldPrice;
-
-    @Column
-    private Double newPrice;
+    @Embedded
+    private Measurements measurements;
 
     @Lob
     private byte[] image;
+
+    private Integer rating;
 }

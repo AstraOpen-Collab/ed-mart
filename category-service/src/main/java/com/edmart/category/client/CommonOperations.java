@@ -1,6 +1,5 @@
 package com.edmart.category.client;
 
-import com.edmart.category.dto.CategoryDTO;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Service;

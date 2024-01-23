@@ -1,8 +1,9 @@
 package com.edmart.product.serviceImpl;
 
+import com.edmart.client.category.CategoryClient;
 import com.edmart.product.dto.ProductDTO;
 import com.edmart.product.dto.ProductResponseDTO;
-import com.edmart.product.exception.ProductNotFoundException;
+import com.edmart.client.exceptions.ProductNotFoundException;
 import com.edmart.product.mappers.ProductMapper;
 import com.edmart.product.model.Product;
 import com.edmart.product.repository.ProductRepository;
@@ -10,6 +11,7 @@ import com.edmart.product.service.ProductService;
 import com.edmart.product.utils.Pagination;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -20,6 +22,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
 import java.beans.PropertyDescriptor;
@@ -34,29 +40,52 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
 
+    private final CategoryClient categoryClient;
+
     private final ProductMapper productMapper;
 
+    private static final Long DEFAULT_CATEGORY_ID = 0L;
+    private final NewTopic topic;
+    private final KafkaTemplate<String, Long> kafkaTemplate;
+
     @Override
-    @CacheEvict(value = "product", allEntries = true)
+    @CacheEvict(value = "products", allEntries = true)
     public void createProduct(ProductDTO productDTO) throws ProductNotFoundException {
-        Product product = new Product();
-
+        Product product = setProductProperties(productDTO);
         try{
-            product.setCategoryId(productDTO.categoryId());
-            product.setDescription(productDTO.description());
-            product.setImage(productDTO.image());
-            product.setPrice(productDTO.price());
-            product.setInventoryId(productDTO.inventoryId());
-            product.setName(productDTO.name());
-            product.setNewPrice(product.getNewPrice());
-            product.setOldPrice(productDTO.oldPrice());
-            product.setSKU(productDTO.SKU());
-
             productRepository.save(product);
         }catch (Exception e){
             log.error("Error creating product with name {}, caused by {}",productDTO.name(),e.getCause());
         }
 
+    }
+
+    public Product setProductProperties(ProductDTO productDTO){
+
+        return Product.builder()
+                .categoryId(productCategory(productDTO.categoryId()))
+                        .description(productDTO.description())
+                                .name(productDTO.name())
+                                        .SKU(productDTO.SKU())
+                                                .rating(productDTO.rating())
+                                                        .units(productDTO.units())
+                                                                .prices(productDTO.prices())
+                                                                        .measurements(productDTO.measurements())
+                                                                                .image(productDTO.image())
+                                                                                        .build();
+    }
+
+    //Method to check existence of a category from the category service
+    public Long productCategory(Long id){
+        Boolean check_category = categoryClient.checkCategoryById(id).getBody();
+
+        if(Boolean.FALSE.equals(check_category)){
+            log.info("Using default Category..");
+           return DEFAULT_CATEGORY_ID;
+        }else{
+            log.info("Category check is returned positive check status!");
+            return id;
+        }
     }
 
     @Override
@@ -68,7 +97,7 @@ public class ProductServiceImpl implements ProductService {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Product> productPage = productRepository.findAll(pageable);
+        Page<ProductDTO> productPage = productRepository.findAll(pageable).map(productMapper);
 
         ProductResponseDTO productResponseDTO=new ProductResponseDTO();
         productResponseDTO.setProductList(productPage.getContent());
@@ -128,5 +157,23 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         return nullProperties.toArray(new String[0]);
+    }
+
+//    @KafkaListener(
+//            topics = "category-topic",
+//            groupId = "${spring.kafka.consumer.group-id}"
+//    )
+//    public Boolean consumeCategoryCheck(Boolean variable){
+//        return variable.equals(true);
+//    }
+
+    public void sendMessage(Long categoryId){
+        log.info("New event sent with Id: => {}", categoryId);
+        Message<Long> message = MessageBuilder
+                .withPayload(categoryId)
+                .setHeader(KafkaHeaders.TOPIC, topic.name())
+                .build();
+
+        kafkaTemplate.send(message);
     }
 }

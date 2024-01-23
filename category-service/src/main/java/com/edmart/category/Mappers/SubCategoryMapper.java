@@ -4,6 +4,7 @@ import com.edmart.category.dto.SubCategoryDTO;
 import com.edmart.category.entity.SubCategory;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.function.Function;
 
 @Service

@@ -2,17 +2,27 @@ package com.edmart.category.entity;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.netflix.discovery.provider.Serializer;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+//@JsonSerialize(using = ToStringSerializer.class)
 @Table(name = "subcategory")
 public class SubCategory extends BaseEntity implements Serializable {
 
@@ -34,11 +44,13 @@ public class SubCategory extends BaseEntity implements Serializable {
     @Column(nullable = false)
     private String description;
 
-    @JsonIgnore
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(
             name = "category_id",
             referencedColumnName = "categoryId"
     )
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
     private Category category;
+
 }

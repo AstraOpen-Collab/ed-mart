@@ -1,4 +1,4 @@
-package com.edmart.product.exception;
+package com.edmart.client.exceptions;
 
 public class ProductNotFoundException extends RuntimeException {
 

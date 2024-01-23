@@ -17,11 +17,11 @@ public class ProductMapper implements Function<Product, ProductDTO> {
                 product.getDescription(),
                 product.getSKU(),
                 product.getCategoryId(),
-                product.getInventoryId(),
-                product.getPrice(),
-                product.getOldPrice(),
-                product.getNewPrice(),
-                product.getImage()
+                product.getPrices(),
+                product.getUnits(),
+                product.getMeasurements(),
+                product.getImage(),
+                product.getRating()
         );
     }
 }
