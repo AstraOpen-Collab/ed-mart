@@ -28,5 +28,7 @@ public interface ProductServiceClient {
     @GetMapping("/vendors/{vendorId}")
     ResponseEntity<Optional<List<ProductDTO>>> getAllProductsByVendorId(@PathVariable("vendorId") Long vendorId) throws VendorNotFoundException;
 
+    @PostMapping("/vendor/{vendorId}")
+    ResponseEntity<String> vendorCreateProduct(@PathVariable("vendorId") Long vendorId, @RequestBody ProductDTO productDTO) throws ProductNotFoundException;
 
 }

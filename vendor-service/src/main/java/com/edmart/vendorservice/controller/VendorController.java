@@ -126,4 +126,13 @@ public class VendorController {
         log.info("Vendor deleted successfully, Vendor ID: {}", vendorId);
         return ResponseEntity.ok("Vendor deleted successfully!!");
     }
+
+    @PostMapping("/{vendorId}/products")
+    public ResponseEntity<String> vendorCreateProduct(@PathVariable("vendorId") Long vendorId,
+                                                      ProductDTO productDTO) throws VendorNotFoundException {
+        log.info("{} creating product with name: {}", getVendorById(vendorId).getContent().vendorName(), productDTO.name());
+        productServiceClient.vendorCreateProduct(vendorId, productDTO);
+
+        return ResponseEntity.ok().body("Product Created Successfully!");
+    }
 }

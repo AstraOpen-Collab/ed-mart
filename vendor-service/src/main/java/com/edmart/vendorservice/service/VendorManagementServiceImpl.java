@@ -17,7 +17,7 @@ import java.util.Optional;
 public class VendorManagementServiceImpl implements VendorManagementService{
 
 
-//    private final ProductServiceClient productServiceClient;
+    //private final ProductServiceClient productServiceClient;
 //
 //    @Override
 //    public Optional<List<ProductDTO>> getAllVendorProductsByVendorId(Long vendorId) {
