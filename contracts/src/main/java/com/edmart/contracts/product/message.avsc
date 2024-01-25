@@ -1,0 +1,11 @@
+{
+  "name": "message",
+  "type": "record",
+  "fields": [
+    {
+      "name": "message",
+      "type": "string",
+      "doc": "This is the message body of this field"
+    }
+  ]
+}

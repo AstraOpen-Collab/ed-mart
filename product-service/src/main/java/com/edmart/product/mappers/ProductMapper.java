@@ -1,6 +1,6 @@
 package com.edmart.product.mappers;
 
-import com.edmart.product.dto.ProductDTO;
+import com.edmart.client.product.ProductDTO;
 import com.edmart.product.model.Product;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,8 @@ public class ProductMapper implements Function<Product, ProductDTO> {
                 product.getUnits(),
                 product.getMeasurements(),
                 product.getImage(),
-                product.getRating()
+                product.getRating(),
+                product.getVendorId()
         );
     }
 }

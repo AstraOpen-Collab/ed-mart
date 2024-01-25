@@ -57,4 +57,6 @@ public class Product extends BaseEntity implements Serializable {
     private byte[] image;
 
     private Integer rating;
+
+    private Long vendorId;
 }

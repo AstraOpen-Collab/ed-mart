@@ -1,9 +1,11 @@
 package com.edmart.product.serviceImpl;
 
 import com.edmart.client.category.CategoryClient;
-import com.edmart.product.dto.ProductDTO;
-import com.edmart.product.dto.ProductResponseDTO;
+import com.edmart.client.exceptions.VendorNotFoundException;
+import com.edmart.client.product.ProductDTO;
+import com.edmart.client.product.ProductResponseDTO;
 import com.edmart.client.exceptions.ProductNotFoundException;
+import com.edmart.client.vendor.VendorClient;
 import com.edmart.product.mappers.ProductMapper;
 import com.edmart.product.model.Product;
 import com.edmart.product.repository.ProductRepository;
@@ -29,9 +31,8 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
 import java.beans.PropertyDescriptor;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -41,6 +42,8 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
 
     private final CategoryClient categoryClient;
+
+    private final VendorClient vendorClient;
 
     private final ProductMapper productMapper;
 
@@ -60,19 +63,38 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
+    @Override
+    @CacheEvict(value = "products", allEntries = true)
+    public void vendorCreateProduct(Long vendorId, ProductDTO productDTO) throws ProductNotFoundException {
+        Product product = setProductProperties(productDTO);
+
+        try{
+            if (!vendorClient.getVendorById(vendorId).getStatusCode().is2xxSuccessful()) {
+                throw new VendorNotFoundException("Vendor does not exist in the system!");
+            }
+
+            product.setVendorId(vendorId);
+            productRepository.save(product);
+        }catch (Exception e){
+            log.error("Error creating product with vendorId: {}, caused by {}", vendorId, e.getCause());
+        }
+
+    }
+
     public Product setProductProperties(ProductDTO productDTO){
 
         return Product.builder()
                 .categoryId(productCategory(productDTO.categoryId()))
-                        .description(productDTO.description())
-                                .name(productDTO.name())
-                                        .SKU(productDTO.SKU())
-                                                .rating(productDTO.rating())
-                                                        .units(productDTO.units())
-                                                                .prices(productDTO.prices())
-                                                                        .measurements(productDTO.measurements())
-                                                                                .image(productDTO.image())
-                                                                                        .build();
+                .description(productDTO.description())
+                .name(productDTO.name())
+                .SKU(productDTO.SKU())
+                .units(productDTO.units())
+                .prices(productDTO.prices())
+                .measurements(productDTO.measurements())
+                .image(productDTO.image())
+                .rating(productDTO.rating())
+                .vendorId(productDTO.vendorId())
+                .build();
     }
 
     //Method to check existence of a category from the category service
@@ -83,7 +105,7 @@ public class ProductServiceImpl implements ProductService {
             log.info("Using default Category..");
            return DEFAULT_CATEGORY_ID;
         }else{
-            log.info("Category check is returned positive check status!");
+            log.info("Category check status is positive!");
             return id;
         }
     }
@@ -116,6 +138,13 @@ public class ProductServiceImpl implements ProductService {
         }else{
             throw new ProductNotFoundException("No Product exist with this Id");
         }
+    }
+
+    @Override
+    @Cacheable(cacheNames = "products", key = "#vendorId")
+    public Optional<List<ProductDTO>> getAllProductsByVendorId(Long vendorId) throws VendorNotFoundException {
+        return Optional.of(new ArrayList<>(productRepository
+                .findProductsByVendorId(vendorId).get()));
     }
 
     @Override

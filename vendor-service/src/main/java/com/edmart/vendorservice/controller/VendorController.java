@@ -3,10 +3,12 @@ package com.edmart.vendorservice.controller;
 
 import com.edmart.client.exceptions.ProductNotFoundException;
 import com.edmart.client.exceptions.VendorNotFoundException;
+import com.edmart.client.product.ProductDTO;
 import com.edmart.client.product.ProductServiceClient;
 import com.edmart.client.vendor.VendorRecord;
 import com.edmart.client.vendor.VendorResponse;
 import com.edmart.vendorservice.exception.VendorCreationSuccessException;
+import com.edmart.vendorservice.service.VendorManagementServiceImpl;
 import com.edmart.vendorservice.service.VendorServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -28,7 +31,7 @@ public class VendorController {
     private final VendorServiceImpl vendorService;
 
 
-    //private final ProductServiceClient feignClient;
+    private final ProductServiceClient productServiceClient;
 
     private final KafkaTemplate<String, VendorRecord> kafkaTemplate;
 
@@ -67,16 +70,23 @@ public class VendorController {
     }
 
     @GetMapping("/{vendorId}")
-    public EntityModel<VendorRecord> getVendorById(@PathVariable Long vendorId) throws VendorNotFoundException, ProductNotFoundException {
+    public EntityModel<VendorRecord> getVendorById(@PathVariable("vendorId") Long vendorId) throws VendorNotFoundException, ProductNotFoundException {
         EntityModel<VendorRecord> resource = EntityModel.of(vendorService.getVendorById(vendorId));
         resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllVendors(PAGENO, PAGESIZE, SORTBY, SORTDIR))
                 .withRel("get_all_available_vendors"));
-//        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllProducts(vendorId))
-//                .withRel("get_all_available_products"));
+        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllProducts(vendorId))
+                .withRel("get_all_vendor_products"));
 
         log.info("Vendor retrieved successfully: {}", resource);
 
         return resource;
+    }
+
+    @GetMapping("/{vendorId}/products")
+    public ResponseEntity<Optional<List<ProductDTO>>> getAllProducts(@PathVariable("vendorId") Long vendorId) throws VendorNotFoundException {
+        log.info("retrieving all available products");
+
+        return productServiceClient.getAllProductsByVendorId(vendorId);
     }
 
     @GetMapping("/name/{name}")

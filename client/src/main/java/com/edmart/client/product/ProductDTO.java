@@ -13,6 +13,7 @@ public record ProductDTO(
         Units units,
         Measurements measurements,
         byte[] image,
-        Integer rating
+        Integer rating,
+        Long vendorId
 ) implements Serializable {
 }

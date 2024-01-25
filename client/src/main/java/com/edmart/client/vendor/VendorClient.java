@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 
 @FeignClient(
-        value = "vendor",
+        value = "vendor-service",
         path = "/api/v1/vendors"
 )
 public interface VendorClient {

@@ -1,18 +1,26 @@
 package com.edmart.product.service;
 
-import com.edmart.product.dto.ProductDTO;
-import com.edmart.product.dto.ProductResponseDTO;
+import com.edmart.client.exceptions.VendorNotFoundException;
+import com.edmart.client.product.ProductDTO;
+import com.edmart.client.product.ProductResponseDTO;
 import com.edmart.client.exceptions.ProductNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface ProductService {
 
     void createProduct(ProductDTO productDTO) throws ProductNotFoundException;
 
+    void vendorCreateProduct(Long vendorId, ProductDTO productDTO) throws ProductNotFoundException;
+
     ProductResponseDTO getAllProducts(int page, int size, String sortBy, String sortDir);
 
     ProductDTO getProduct(Long productId) throws ProductNotFoundException;
+
+    Optional<List<ProductDTO>> getAllProductsByVendorId(Long vendorId) throws VendorNotFoundException;
 
     void updateProduct(Long productId, ProductDTO productDTO) throws ProductNotFoundException;
 

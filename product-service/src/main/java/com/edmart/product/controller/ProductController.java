@@ -1,7 +1,8 @@
 package com.edmart.product.controller;
 
-import com.edmart.product.dto.ProductDTO;
-import com.edmart.product.dto.ProductResponseDTO;
+import com.edmart.client.exceptions.VendorNotFoundException;
+import com.edmart.client.product.ProductDTO;
+import com.edmart.client.product.ProductResponseDTO;
 import com.edmart.client.exceptions.ProductNotFoundException;
 import com.edmart.product.service.ProductService;
 import lombok.AllArgsConstructor;
@@ -9,10 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/api/v1/products")
-@CrossOrigin
 @AllArgsConstructor
 @Slf4j
 public class ProductController {
@@ -21,9 +24,9 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<ProductResponseDTO> getAllProducts(@RequestParam(defaultValue = "0") int page,
-                                                               @RequestParam(defaultValue = "5") int size,
-                                                               @RequestParam(value = "sortBy", defaultValue = "createdAt", required = false) String sortBy,
-                                                               @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir){
+                                                             @RequestParam(defaultValue = "5") int size,
+                                                             @RequestParam(value = "sortBy", defaultValue = "createdAt", required = false) String sortBy,
+                                                             @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir){
         log.info("Retrieving all products: {}", productService.getAllProducts(page, size,sortBy, sortDir));
 
         return ResponseEntity.ok().body(productService.getAllProducts(page, size,sortBy, sortDir));
@@ -38,11 +41,27 @@ public class ProductController {
         return ResponseEntity.ok().body("Product created successfully");
     }
 
+
+    @PostMapping("/vendor/{vendorId}")
+    public ResponseEntity<String> vendorCreateProduct(@PathVariable("vendorId") Long vendorId, @RequestBody ProductDTO productDTO) throws ProductNotFoundException {
+        log.info("Creating a product with name: {} by vendor with Id: {}",productDTO.name(), vendorId);
+
+        productService.vendorCreateProduct(vendorId, productDTO);
+
+        return ResponseEntity.ok().body("Product created successfully");
+    }
+
     @GetMapping("/{Id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable("Id") Long Id) throws ProductNotFoundException {
         log.info("Retrieving a product with Id: {}", Id);
 
         return ResponseEntity.ok().body(productService.getProduct(Id));
+    }
+
+    @GetMapping("/vendors/{vendorId}")
+    public ResponseEntity<Optional<List<ProductDTO>>> getAllProductsByVendorId(@PathVariable("vendorId") Long vendorId) throws VendorNotFoundException {
+        log.info("Retrieving all items with vendor Id: {}", vendorId);
+        return ResponseEntity.ok().body(productService.getAllProductsByVendorId(vendorId));
     }
 
     @PutMapping("/{productId}")
