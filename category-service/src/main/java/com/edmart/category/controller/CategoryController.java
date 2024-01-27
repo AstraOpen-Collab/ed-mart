@@ -68,7 +68,11 @@ public class CategoryController {
     }
 
     @GetMapping("/check/{Id}")
-    ResponseEntity<Boolean> checkCategoryById(@PathVariable("Id") Long Id){
-        return ResponseEntity.ok().body(categoryService.checkCategoryAvailability(Id));
+    public ResponseEntity<Optional<Long>> checkCategoryById(@PathVariable("Id") Long Id){
+        Optional<Long> categoryId = Optional.ofNullable(categoryService.getCategory(Id).get().categoryId());
+        if(categoryId.isEmpty()){
+            throw new CategoryNotFoundException("Category Not Found!!..");
+        }
+        return ResponseEntity.ok().body(categoryId);
     }
 }

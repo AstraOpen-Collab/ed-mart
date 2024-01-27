@@ -2,6 +2,7 @@ package com.edmart.product.model;
 
 import com.edmart.client.product.Measurements;
 import com.edmart.client.product.Prices;
+import com.edmart.client.product.ProductStatus;
 import com.edmart.client.product.Units;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,6 +51,8 @@ public class Product extends BaseEntity implements Serializable {
     @Embedded
     private Units units;
 
+    private Integer quantity;
+
     @Embedded
     private Measurements measurements;
 
@@ -59,4 +62,6 @@ public class Product extends BaseEntity implements Serializable {
     private Integer rating;
 
     private Long vendorId;
+
+    private ProductStatus status;
 }

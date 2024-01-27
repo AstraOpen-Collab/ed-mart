@@ -11,9 +11,12 @@ public record ProductDTO(
 
         Prices prices,
         Units units,
+
+        Integer quantity,
         Measurements measurements,
         byte[] image,
         Integer rating,
-        Long vendorId
+        Long vendorId,
+        ProductStatus status
 ) implements Serializable {
 }

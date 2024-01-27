@@ -2,10 +2,14 @@ package com.edmart.product.serviceImpl;
 
 import com.edmart.client.category.CategoryClient;
 import com.edmart.client.exceptions.VendorNotFoundException;
+import com.edmart.client.product.Measurements;
 import com.edmart.client.product.ProductDTO;
 import com.edmart.client.product.ProductResponseDTO;
 import com.edmart.client.exceptions.ProductNotFoundException;
+import com.edmart.client.product.Units;
+import com.edmart.client.vendor.Address;
 import com.edmart.client.vendor.VendorClient;
+import com.edmart.contracts.product.ProductInventorySchema;
 import com.edmart.product.mappers.ProductMapper;
 import com.edmart.product.model.Product;
 import com.edmart.product.repository.ProductRepository;
@@ -49,7 +53,7 @@ public class ProductServiceImpl implements ProductService {
 
     private static final Long DEFAULT_CATEGORY_ID = 0L;
     private final NewTopic topic;
-    private final KafkaTemplate<String, Long> kafkaTemplate;
+    private final KafkaTemplate<String, ProductInventorySchema> kafkaTemplate;
 
     @Override
     @CacheEvict(value = "products", allEntries = true)
@@ -57,6 +61,13 @@ public class ProductServiceImpl implements ProductService {
         Product product = setProductProperties(productDTO);
         try{
             productRepository.save(product);
+
+            ProductInventorySchema message = new ProductInventorySchema(
+                    product.getProductId(),
+                    productDTO.quantity(),
+                    productDTO.status()
+            );
+            SendMessageToProductInventoryTopic(message);
         }catch (Exception e){
             log.error("Error creating product with name {}, caused by {}",productDTO.name(),e.getCause());
         }
@@ -75,6 +86,15 @@ public class ProductServiceImpl implements ProductService {
 
             product.setVendorId(vendorId);
             productRepository.save(product);
+
+            //Sending message to productInventoryTopic
+
+            ProductInventorySchema message = new ProductInventorySchema(
+                    product.getProductId(),
+                    productDTO.quantity(),
+                    productDTO.status()
+            );
+            SendMessageToProductInventoryTopic(message);
         }catch (Exception e){
             log.error("Error creating product with vendorId: {}, caused by {}", vendorId, e.getCause());
         }
@@ -89,25 +109,24 @@ public class ProductServiceImpl implements ProductService {
                 .name(productDTO.name())
                 .SKU(productDTO.SKU())
                 .units(productDTO.units())
+                .quantity(productDTO.quantity())
                 .prices(productDTO.prices())
                 .measurements(productDTO.measurements())
                 .image(productDTO.image())
                 .rating(productDTO.rating())
                 .vendorId(productDTO.vendorId())
+                .status(productDTO.status())
                 .build();
     }
 
     //Method to check existence of a category from the category service
     public Long productCategory(Long id){
-        Boolean check_category = categoryClient.checkCategoryById(id).getBody();
-
-        if(Boolean.FALSE.equals(check_category)){
+        if(!categoryClient.checkCategoryById(id).getStatusCode().is2xxSuccessful()){
             log.info("Using default Category..");
-           return DEFAULT_CATEGORY_ID;
-        }else{
-            log.info("Category check status is positive!");
-            return id;
+            return DEFAULT_CATEGORY_ID;
         }
+        log.info("Category check status is positive!");
+        return id;
     }
 
     @Override
@@ -188,6 +207,100 @@ public class ProductServiceImpl implements ProductService {
         return nullProperties.toArray(new String[0]);
     }
 
+//    private String[] getNullPropertyNames(ProductDTO productDTO) {
+//        BeanWrapper beanWrapper = new BeanWrapperImpl(productDTO);
+//        PropertyDescriptor[] propertyDescriptors = beanWrapper.getPropertyDescriptors();
+//
+//        Set<String> nullProperties = new HashSet<>();
+//
+//        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+//            String propertyName = propertyDescriptor.getName();
+//            Object propertyValue = beanWrapper.getPropertyValue(propertyName);
+//
+//            if (propertyValue == null) {
+//                nullProperties.add(propertyName);
+//            } else if (propertyValue instanceof Address) {
+//                Address address = (Address) propertyValue;
+//                String[] addressNullProperties = getAddressNullProperties(address);
+//
+//                for (String addressNullProperty : addressNullProperties) {
+//                    nullProperties.add("address." + addressNullProperty);
+//                }
+//            } else if (propertyValue instanceof Units) {
+//                Units units = (Units) propertyValue;
+//                String[] unitsNullProperties = getUnitsNullProperties(units);
+//
+//                for (String unitsNullProperty : unitsNullProperties) {
+//                    nullProperties.add("units." + unitsNullProperty);
+//                }
+//            } else if (propertyValue instanceof Measurements) {
+//                Measurements measurement = (Measurements) propertyValue;
+//                String[] measurementNullProperties = getMeasurementNullProperties(measurement);
+//
+//                for (String measurementNullProperty : measurementNullProperties) {
+//                    nullProperties.add("measurements." + measurementNullProperty);
+//                }
+//            }
+//        }
+//
+//        return nullProperties.toArray(new String[0]);
+//    }
+//
+//    private String[] getAddressNullProperties(Address address) {
+//        BeanWrapper beanWrapper = new BeanWrapperImpl(address);
+//        PropertyDescriptor[] propertyDescriptors = beanWrapper.getPropertyDescriptors();
+//
+//        Set<String> nullProperties = new HashSet<>();
+//
+//        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+//            String propertyName = propertyDescriptor.getName();
+//            Object propertyValue = beanWrapper.getPropertyValue(propertyName);
+//
+//            if (propertyValue == null) {
+//                nullProperties.add(propertyName);
+//            }
+//        }
+//
+//        return nullProperties.toArray(new String[0]);
+//    }
+//
+//    private String[] getUnitsNullProperties(Units units) {
+//        BeanWrapper beanWrapper = new BeanWrapperImpl(units);
+//        PropertyDescriptor[] propertyDescriptors = beanWrapper.getPropertyDescriptors();
+//
+//        Set<String> nullProperties = new HashSet<>();
+//
+//        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+//            String propertyName = propertyDescriptor.getName();
+//            Object propertyValue = beanWrapper.getPropertyValue(propertyName);
+//
+//            if (propertyValue == null) {
+//                nullProperties.add(propertyName);
+//            }
+//        }
+//
+//        return nullProperties.toArray(new String[0]);
+//    }
+//
+//    private String[] getMeasurementNullProperties(Measurements measurement) {
+//        BeanWrapper beanWrapper = new BeanWrapperImpl(measurement);
+//        PropertyDescriptor[] propertyDescriptors = beanWrapper.getPropertyDescriptors();
+//
+//        Set<String> nullProperties = new HashSet<>();
+//
+//        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+//            String propertyName = propertyDescriptor.getName();
+//            Object propertyValue = beanWrapper.getPropertyValue(propertyName);
+//
+//            if (propertyValue == null) {
+//                nullProperties.add(propertyName);
+//            }
+//        }
+//
+//        return nullProperties.toArray(new String[0]);
+//    }
+
+
 //    @KafkaListener(
 //            topics = "category-topic",
 //            groupId = "${spring.kafka.consumer.group-id}"
@@ -195,14 +308,23 @@ public class ProductServiceImpl implements ProductService {
 //    public Boolean consumeCategoryCheck(Boolean variable){
 //        return variable.equals(true);
 //    }
+//
+//    public void sendMessage(Long categoryId){
+//        Message<Long> message = MessageBuilder
+//                .withPayload(categoryId)
+//                .setHeader(KafkaHeaders.TOPIC, topic.name())
+//                .build();
+//
+//        kafkaTemplate.send(message);
+//    }
 
-    public void sendMessage(Long categoryId){
-        log.info("New event sent with Id: => {}", categoryId);
-        Message<Long> message = MessageBuilder
-                .withPayload(categoryId)
+    public void SendMessageToProductInventoryTopic(ProductInventorySchema inventorySchema){
+        log.info("sending new Inventory event data => : {}", inventorySchema);
+        Message<ProductInventorySchema> payload = MessageBuilder
+                .withPayload(inventorySchema)
                 .setHeader(KafkaHeaders.TOPIC, topic.name())
                 .build();
 
-        kafkaTemplate.send(message);
+        kafkaTemplate.send(payload);
     }
 }

@@ -129,7 +129,7 @@ public class VendorController {
 
     @PostMapping("/{vendorId}/products")
     public ResponseEntity<String> vendorCreateProduct(@PathVariable("vendorId") Long vendorId,
-                                                      ProductDTO productDTO) throws VendorNotFoundException {
+                                                     @RequestBody ProductDTO productDTO) throws VendorNotFoundException {
         log.info("{} creating product with name: {}", getVendorById(vendorId).getContent().vendorName(), productDTO.name());
         productServiceClient.vendorCreateProduct(vendorId, productDTO);
 

@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.Optional;
+
 @FeignClient(
         value = "category",
         path = "/api/v1/categories"
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface CategoryClient {
 
     @GetMapping("/check/{Id}")
-    ResponseEntity<Boolean> checkCategoryById(@PathVariable("Id") Long categoryId);
+    ResponseEntity<Optional<Long>> checkCategoryById(@PathVariable("Id") Long Id);
+
 
 }

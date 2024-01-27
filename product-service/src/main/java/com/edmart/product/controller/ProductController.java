@@ -65,14 +65,14 @@ public class ProductController {
     }
 
     @PutMapping("/{productId}")
-    public ResponseEntity<?> updateProduct(@RequestBody ProductDTO request, @PathVariable Long productId) throws ProductNotFoundException {
+    public ResponseEntity<String> updateProduct(@RequestBody ProductDTO request, @PathVariable Long productId) throws ProductNotFoundException {
         log.info("Updating a product with name:{}",request.name());
 
         productService.updateProduct(productId, request);
 
         log.info("Updated Product Successfully {}", request);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().body("Updated Successfully..");
     }
 
     @DeleteMapping("/{productId}")

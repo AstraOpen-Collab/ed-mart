@@ -19,10 +19,12 @@ public class ProductMapper implements Function<Product, ProductDTO> {
                 product.getCategoryId(),
                 product.getPrices(),
                 product.getUnits(),
+                product.getQuantity(),
                 product.getMeasurements(),
                 product.getImage(),
                 product.getRating(),
-                product.getVendorId()
+                product.getVendorId(),
+                product.getStatus()
         );
     }
 }
