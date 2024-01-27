@@ -24,6 +24,12 @@ public interface ProductService {
 
     void updateProduct(Long productId, ProductDTO productDTO) throws ProductNotFoundException;
 
+    void updateVendorProduct(Long vendorId, Long productId, ProductDTO productDTO) throws VendorNotFoundException, ProductNotFoundException;
+
     void deleteProduct(Long productId) throws ProductNotFoundException;
+
+    void deleteProductByVendorIdAndProductId(Long vendorId, Long productId) throws VendorNotFoundException;
+
+
 
 }

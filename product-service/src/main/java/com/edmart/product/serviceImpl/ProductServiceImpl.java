@@ -55,6 +55,7 @@ public class ProductServiceImpl implements ProductService {
     private final NewTopic topic;
     private final KafkaTemplate<String, ProductInventorySchema> kafkaTemplate;
 
+
     @Override
     @CacheEvict(value = "products", allEntries = true)
     public void createProduct(ProductDTO productDTO) throws ProductNotFoundException {
@@ -172,6 +173,24 @@ public class ProductServiceImpl implements ProductService {
         try{
             Product product = productRepository.findById(productId)
                     .orElseThrow(()->new ProductNotFoundException("Product does not exist"));
+            log.info("updating product with name: {}", product.getName());
+
+            BeanUtils.copyProperties(productDTO, product, getNullPropertyNames(productDTO));
+
+            productRepository.save(product);
+        }catch(Exception ex){
+            log.error("Error updating product with name {} caused by {}", productDTO.name(), ex.getMessage());
+        }
+    }
+
+    @Override
+    @CachePut(cacheNames = "products", key = "#productId")
+    public void updateVendorProduct(Long vendorId, Long productId, ProductDTO productDTO)
+            throws VendorNotFoundException, ProductNotFoundException{
+        try{
+            Product product = productRepository.findProductsByVendorIdAndProductId(vendorId, productId)
+                    .orElseThrow(()->new ProductNotFoundException("Product does not exist"));
+            log.info("updating product with name: {}", product.getName());
 
             BeanUtils.copyProperties(productDTO, product, getNullPropertyNames(productDTO));
 
@@ -193,6 +212,19 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    @Override
+    @CacheEvict(cacheNames = "products", key = "#productId", beforeInvocation = true)
+    public void deleteProductByVendorIdAndProductId(Long vendorId, Long productId) throws VendorNotFoundException {
+        Optional<ProductDTO> productDTOOptional = productRepository
+                .findProductsByVendorIdAndProductId(vendorId, productId).map(productMapper);
+
+        if(productDTOOptional.isPresent()){
+            productRepository.deleteById(productId);
+        }else{
+            throw new ProductNotFoundException("Product with this vendorId and productId does not exist");
+        }
+    }
+
     private String[] getNullPropertyNames(ProductDTO productDTO) {
         BeanWrapper beanWrapper = new BeanWrapperImpl(productDTO);
         PropertyDescriptor[] propertyDescriptors = beanWrapper.getPropertyDescriptors();
@@ -207,98 +239,6 @@ public class ProductServiceImpl implements ProductService {
         return nullProperties.toArray(new String[0]);
     }
 
-//    private String[] getNullPropertyNames(ProductDTO productDTO) {
-//        BeanWrapper beanWrapper = new BeanWrapperImpl(productDTO);
-//        PropertyDescriptor[] propertyDescriptors = beanWrapper.getPropertyDescriptors();
-//
-//        Set<String> nullProperties = new HashSet<>();
-//
-//        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
-//            String propertyName = propertyDescriptor.getName();
-//            Object propertyValue = beanWrapper.getPropertyValue(propertyName);
-//
-//            if (propertyValue == null) {
-//                nullProperties.add(propertyName);
-//            } else if (propertyValue instanceof Address) {
-//                Address address = (Address) propertyValue;
-//                String[] addressNullProperties = getAddressNullProperties(address);
-//
-//                for (String addressNullProperty : addressNullProperties) {
-//                    nullProperties.add("address." + addressNullProperty);
-//                }
-//            } else if (propertyValue instanceof Units) {
-//                Units units = (Units) propertyValue;
-//                String[] unitsNullProperties = getUnitsNullProperties(units);
-//
-//                for (String unitsNullProperty : unitsNullProperties) {
-//                    nullProperties.add("units." + unitsNullProperty);
-//                }
-//            } else if (propertyValue instanceof Measurements) {
-//                Measurements measurement = (Measurements) propertyValue;
-//                String[] measurementNullProperties = getMeasurementNullProperties(measurement);
-//
-//                for (String measurementNullProperty : measurementNullProperties) {
-//                    nullProperties.add("measurements." + measurementNullProperty);
-//                }
-//            }
-//        }
-//
-//        return nullProperties.toArray(new String[0]);
-//    }
-//
-//    private String[] getAddressNullProperties(Address address) {
-//        BeanWrapper beanWrapper = new BeanWrapperImpl(address);
-//        PropertyDescriptor[] propertyDescriptors = beanWrapper.getPropertyDescriptors();
-//
-//        Set<String> nullProperties = new HashSet<>();
-//
-//        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
-//            String propertyName = propertyDescriptor.getName();
-//            Object propertyValue = beanWrapper.getPropertyValue(propertyName);
-//
-//            if (propertyValue == null) {
-//                nullProperties.add(propertyName);
-//            }
-//        }
-//
-//        return nullProperties.toArray(new String[0]);
-//    }
-//
-//    private String[] getUnitsNullProperties(Units units) {
-//        BeanWrapper beanWrapper = new BeanWrapperImpl(units);
-//        PropertyDescriptor[] propertyDescriptors = beanWrapper.getPropertyDescriptors();
-//
-//        Set<String> nullProperties = new HashSet<>();
-//
-//        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
-//            String propertyName = propertyDescriptor.getName();
-//            Object propertyValue = beanWrapper.getPropertyValue(propertyName);
-//
-//            if (propertyValue == null) {
-//                nullProperties.add(propertyName);
-//            }
-//        }
-//
-//        return nullProperties.toArray(new String[0]);
-//    }
-//
-//    private String[] getMeasurementNullProperties(Measurements measurement) {
-//        BeanWrapper beanWrapper = new BeanWrapperImpl(measurement);
-//        PropertyDescriptor[] propertyDescriptors = beanWrapper.getPropertyDescriptors();
-//
-//        Set<String> nullProperties = new HashSet<>();
-//
-//        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
-//            String propertyName = propertyDescriptor.getName();
-//            Object propertyValue = beanWrapper.getPropertyValue(propertyName);
-//
-//            if (propertyValue == null) {
-//                nullProperties.add(propertyName);
-//            }
-//        }
-//
-//        return nullProperties.toArray(new String[0]);
-//    }
 
 
 //    @KafkaListener(

@@ -75,9 +75,33 @@ public class ProductController {
         return ResponseEntity.ok().body("Updated Successfully..");
     }
 
+    @PutMapping("/{productId}/vendors/{vendorId}")
+    public ResponseEntity<String> updateVendorProduct(@RequestBody ProductDTO request, @PathVariable("vendorId") Long vendorId, @PathVariable("productId") Long productId)
+            throws ProductNotFoundException, VendorNotFoundException {
+
+        log.info("Updating product with productId : {} and vendorId : {}", productId, vendorId);
+
+        productService.updateVendorProduct(vendorId, productId, request);
+
+        log.info("Updated Product Successfully {}", request);
+
+        return ResponseEntity.ok().body("Updated Successfully..");
+    }
+
     @DeleteMapping("/{productId}")
     public ResponseEntity<String> deleteProduct(@PathVariable("productId") Long productId) throws ProductNotFoundException {
         productService.deleteProduct(productId);
+
+        log.info("Successfully deleted product with Id {}", productId);
+
+        return ResponseEntity.ok("Product deleted successfully!");
+    }
+
+    @DeleteMapping("/{productId}/vendors/{vendorId}")
+    public ResponseEntity<String> deleteVendorProduct(@PathVariable("vendorId") Long vendorId, @PathVariable("productId") Long productId)
+            throws ProductNotFoundException, VendorNotFoundException {
+
+        productService.deleteProductByVendorIdAndProductId(vendorId, productId);
 
         log.info("Successfully deleted product with Id {}", productId);
 

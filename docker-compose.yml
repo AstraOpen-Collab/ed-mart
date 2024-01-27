@@ -30,36 +30,36 @@ services:
     restart: 'unless-stopped'
 
 
-#  mysql-db:
-#    image: mysql:5.7
-#    restart: unless-stopped
-#    environment:
-#      MYSQL_DATABASE: product-server
-#      MYSQL_USER: edmart
-#      MYSQL_PASSWORD: password
-#      MYSQL_ROOT_PASSWORD: password
-#    ports:
-#      - '3307:3306'
-#    networks:
-#      - mysql
-#    volumes:
-#      - my-db:/var/lib/mysql
-#
-#  phpmyadmin:
-#    image: phpmyadmin/phpmyadmin
-#    restart: unless-stopped
-#    environment:
-#      PMA_HOST: mysql-db
-#      PMA_PORT: 3307
-#      PMA_ARBITRARY: 1
-#      MYSQL_USERNAME: edmart
-#      MYSQL_ROOT_PASSWORD: password
-#    ports:
-#      - '8078:80'
-#    networks:
-#      - mysql
-#    depends_on:
-#      - mysql-db
+  mysql-db:
+    image: mysql:5.7
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: edmart-server
+      MYSQL_USER: edmart
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - '3306:3306'
+    volumes:
+      - my-db:/var/lib/mysql
+    networks:
+      - mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql-db
+      PMA_PORT: 3306
+      PHPMYADMIN_PORT: 8078
+      MYSQL_USERNAME: edmart
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - '8078:80'
+    networks:
+      - mysql
+    depends_on:
+      - mysql-db
 
   redis-stack-server:
     image: redis/redis-stack:latest

@@ -1,5 +1,6 @@
 package com.edmart.product.repository;
 
+import com.edmart.client.exceptions.ProductNotFoundException;
 import com.edmart.client.exceptions.VendorNotFoundException;
 import com.edmart.client.product.ProductDTO;
 import com.edmart.product.model.Product;
@@ -16,5 +17,10 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     Page<Product> findAll(Pageable pageable);
 
     Optional<List<ProductDTO>> findProductsByVendorId(Long vendorId) throws VendorNotFoundException;
+
+    void deleteProductByVendorIdAndAndProductId(Long vendorId, Long productId);
+
+    Optional<Product> findProductsByVendorIdAndProductId(Long vendorId, Long productId) throws VendorNotFoundException, ProductNotFoundException;
+
 
 }
