@@ -1,0 +1,10 @@
+ __ __    ___  ____   ___     ___   ____
+|  T  |  /  _]|    \ |   \   /   \ |    \
+|  |  | /  [_ |  _  Y|    \ Y     Y|  D  )
+|  |  |Y    _]|  |  ||  D  Y|  O  ||    /
+l  :  !|   [_ |  |  ||     ||     ||    \
+ \   / |     T|  |  ||     |l     !|  .  Y
+  \_/  l_____jl__j__jl_____j \___/ l__j\_j
+
+${spring.application.name} ${application.version}
+::Powered by Spring Boot:: ${spring-boot.version}

@@ -1,0 +1,72 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: inventory-service
+#  autoconfigure:
+#    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+#  datasource:
+#    username: edmart
+#    driver-Class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/product-server
+#    password: password
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: 'true'
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/edmart
+    username: edmart
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show_sql: true
+    generate-ddl: true
+
+
+  zipkin:
+    base-url: http://localhost:9412
+
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: inventory
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    hostname: localhost
+
+#management:
+#  server:
+#    port: 9101
+#  endpoints:
+#    web:
+#      exposure:
+#        include: health, prometheus
+#      base-path: "/"
+#      path-mapping:
+#        prometheus: "metrics"
+#  metrics:
+#    tags:
+#      application: transfer-service

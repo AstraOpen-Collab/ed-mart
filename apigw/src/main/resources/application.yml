@@ -14,6 +14,18 @@ spring:
           uri: lb://CATEGORY
           predicates:
             - Path=/api/v1/categories/**, /api/v1/sub-categories/**
+        - id: product
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/v1/products/**
+        - id: vendor-service
+          uri: lb://VENDOR-SERVICE
+          predicates:
+            - Path=/api/v1/vendors/**
+        - id: inventory-service
+          uri: lb://INVENTORY-SERVICE
+          predicates:
+            - Path=/api/v1/inventories/**
 
 
 eureka:

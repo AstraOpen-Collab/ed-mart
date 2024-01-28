@@ -1,6 +1,6 @@
 package com.edmart.product.utils;
 
-import com.edmart.product.dto.PageInfoDTO;
+import com.edmart.client.product.PageInfoDTO;
 import org.springframework.data.domain.Page;
 
 public class Pagination {

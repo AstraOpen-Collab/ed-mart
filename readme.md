@@ -19,7 +19,7 @@ This project is under continuous development using Java, Spring Boot, Spark, Ope
 
 - Java
 - Spring Boot
-- Spark
+- Flink
 - Docker
 - Eureka Server (Service Discovery)
 - Zipkin (Distributed Log Tracing Tool)

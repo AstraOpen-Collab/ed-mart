@@ -4,6 +4,7 @@ import com.edmart.category.dto.SubCategoryDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface SubCategoryService {
@@ -12,9 +13,9 @@ public interface SubCategoryService {
 
     List<SubCategoryDTO> getSubCategoriesInCategory(Long categoryId);
 
-    void createSubCategory(Long categoryId, SubCategoryDTO subCategoryRequest);
+    void createSubCategory(SubCategoryDTO request);
 
-    SubCategoryDTO getSubCategoryById(Long id);
+    Optional<SubCategoryDTO> getSubCategoryById(Long id);
 
     void updateSubCategory(Long id, SubCategoryDTO request);
 

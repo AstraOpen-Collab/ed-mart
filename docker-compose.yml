@@ -34,26 +34,27 @@ services:
     image: mysql:5.7
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: product-server
+      MYSQL_DATABASE: edmart-server
       MYSQL_USER: edmart
       MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: admin123
     ports:
-      - '3307:3306'
+      - '3306:3306'
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - my-db:/var/lib/mysql
     networks:
       - mysql
-    volumes:
-      - my-db:/var/lib/mysql
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     restart: unless-stopped
     environment:
       PMA_HOST: mysql-db
-      PMA_PORT: 3307
-      PMA_ARBITRARY: 1
+      PMA_PORT: 3306
+      PHPMYADMIN_PORT: 8078
       MYSQL_USERNAME: edmart
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: admin123
     ports:
       - '8078:80'
     networks:
@@ -61,16 +62,16 @@ services:
     depends_on:
       - mysql-db
 
-#  redis-stack-server:
-#    image: redis/redis-stack:latest
-#    volumes:
-#      - redis-data:/data
-#    ports:
-#      - 6379:6379
-#      - 8050:8001
-#    networks:
-#      - redis-network
-#    restart: always
+  redis-stack-server:
+    image: redis/redis-stack:latest
+    volumes:
+      - redis-data:/datax
+    ports:
+      - 6380:6379
+      - 8055:8001
+    networks:
+      - redis-network
+    restart: always
 
 #  sonarqube:
 #    container_name: sonarqube-inventics
@@ -89,49 +90,138 @@ services:
     networks:
       - spring
 
-#  zookeeper:
-#    image: confluentinc/cp-zookeeper:latest
-#    container_name: zookeeper
-#    environment:
-#      ZOOKEEPER_SERVER_ID: 1
-#      ZOOKEEPER_CLIENT_PORT: 2181
-#      ZOOKEEPER_TICK_TIME: 2000
-#    ports:
-#      - "22181:2181"
-#    networks:
-#      - kafka-network
-#
-#  broker:
-#    image: confluentinc/cp-kafka:latest
-#    container_name: broker
-#    ports:
-#      - "9092:9092"
-#    depends_on:
-#      - zookeeper
-#    environment:
-#      KAFKA_BROKER_ID: 1
-#      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-#      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-#    networks:
-#      - kafka-network
-#
-#
-#  kafka-ui:
-#    container_name: kafka-ui
-#    image: provectuslabs/kafka-ui:latest
-#    ports:
-#      - 8066:8080
-#    depends_on:
-#      - broker
-#    environment:
-#      DYNAMIC_CONFIG_ENABLED: 'true'
-#      KAFKA_CLUSTERS_0_NAME: inventics-flow
-#      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: broker:9092
-#    networks:
-#      - kafka-network
+  zookeeper0:
+    image: confluentinc/cp-zookeeper:7.2.1
+    hostname: zookeeper0
+    container_name: zookeeper0
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - kafka-network-01
+
+  kafka:
+    image: confluentinc/cp-server:7.2.1
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper0
+    ports:
+      - "9092:9092"
+      - "9997:9997"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper0:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9997
+      KAFKA_JMX_HOSTNAME: kafka
+    networks:
+      - kafka-network-01
+
+  schemaregistry0:
+    image: confluentinc/cp-schema-registry:7.2.1
+    ports:
+      - 8045:8085
+    depends_on:
+      - kafka
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:29092
+      SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
+      SCHEMA_REGISTRY_HOST_NAME: schemaregistry0
+      SCHEMA_REGISTRY_LISTENERS: http://schemaregistry0:8045
+
+      SCHEMA_REGISTRY_SCHEMA_REGISTRY_INTER_INSTANCE_PROTOCOL: "http"
+      SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL: INFO
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC: _schemas
+    networks:
+      - kafka-network-01
+
+  kafka-connect0:
+    image: confluentinc/cp-kafka-connect:7.2.1
+    ports:
+      - 8046:8083
+    depends_on:
+      - kafka
+      - schemaregistry0
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka:29092
+      CONNECT_GROUP_ID: compose-connect-group
+      CONNECT_CONFIG_STORAGE_TOPIC: _connect_configs
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_TOPIC: _connect_offset
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_TOPIC: _connect_status
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://schemaregistry0:8045
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.storage.StringConverter
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schemaregistry0:8045
+      CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect0
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
+    networks:
+      - kafka-network-01
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - 8040:8080
+    depends_on:
+      - kafka
+      - schemaregistry0
+      - kafka-connect0
+      - ksqldb
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_METRICS_PORT: 9997
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schemaregistry0:8045
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: first
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect0:8046
+      DYNAMIC_CONFIG_ENABLED: 'true'
+    networks:
+      - kafka-network-01
+
+  ksqldb:
+    image: confluentinc/ksqldb-server:0.18.0
+    healthcheck:
+      test: [ "CMD", "timeout", "1", "curl", "--silent", "--fail", "http://localhost:8088/info" ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+    depends_on:
+      kafka:
+        condition: service_healthy
+      kafka-connect0:
+        condition: service_healthy
+      schemaregistry0:
+        condition: service_healthy
+    ports:
+      - 8088:8088
+    environment:
+      KSQL_CUB_KAFKA_TIMEOUT: 120
+      KSQL_LISTENERS: http://0.0.0.0:8088
+      KSQL_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:29092
+      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+      KSQL_KSQL_CONNECT_URL: http://kafka-connect0:8046
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schemaregistry0:8045
+      KSQL_KSQL_SERVICE_ID: my_ksql_1
+      KSQL_KSQL_HIDDEN_TOPICS: '^_.*'
+      KSQL_CACHE_MAX_BYTES_BUFFERING: 0
+    networks:
+      - kafka-network-01
 
 networks:
   postgres:
@@ -140,16 +230,16 @@ networks:
     driver: bridge
 #  sonarqube:
 #    driver: bridge
-#  redis-network:
-#    driver: bridge
+  redis-network:
+    driver: bridge
   spring:
     driver: bridge
-#  kafka-network:
-#    driver: bridge
+  kafka-network-01:
+    driver: bridge
 
 volumes:
   postgres:
   pgadmin:
   my-db:
-#  redis-data: -d
-#    external: false
+  redis-data:
+    external: false

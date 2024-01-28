@@ -3,7 +3,9 @@ package com.edmart.category.utils;
 import com.edmart.category.dto.PageInfoDTO;
 import org.springframework.data.domain.Page;
 
-public class Pagination {
+import java.io.Serializable;
+
+public class Pagination implements Serializable {
 
     public static PageInfoDTO getPageInfoDTO(Page<?> page){
         PageInfoDTO pageInfoDTO = new PageInfoDTO();

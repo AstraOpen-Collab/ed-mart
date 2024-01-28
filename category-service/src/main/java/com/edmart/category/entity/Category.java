@@ -1,10 +1,20 @@
 package com.edmart.category.entity;
 
+
+import com.edmart.category.client.CategorySerializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 @AllArgsConstructor
@@ -12,7 +22,8 @@ import java.util.List;
 @Entity
 @Data
 @Table(name = "category")
-public class Category extends BaseEntity {
+//@JsonSerialize(using = CategorySerializer.class)
+public class Category extends BaseEntity implements Serializable {
 
     @Id
     @SequenceGenerator(
@@ -35,6 +46,12 @@ public class Category extends BaseEntity {
     @Column
     private String categoryDesignation;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    List<SubCategory> subCategories;
+    @OneToMany(
+            mappedBy = "category",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER
+    )
+    @JsonIgnore
+    private List<SubCategory> subCategories;
+
 }

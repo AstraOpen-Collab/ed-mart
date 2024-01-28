@@ -4,26 +4,29 @@ import com.edmart.category.dto.CategoryDTO;
 import com.edmart.category.dto.CategoryResponseDTO;
 import com.edmart.category.exception.CategoryNotFoundException;
 import com.edmart.category.service.CategoryService;
+import com.edmart.category.serviceImpl.CategoryServiceImpl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/api/v1/categories")
-@CrossOrigin
 @AllArgsConstructor
 @Slf4j
 public class CategoryController {
 
-    private final CategoryService categoryService;
+    private final CategoryServiceImpl categoryService;
 
     @GetMapping
     public ResponseEntity<CategoryResponseDTO> getAllCategories(@RequestParam(defaultValue = "0") int page,
                                                                 @RequestParam(defaultValue = "5") int size,
                                                                 @RequestParam(value = "sortBy", defaultValue = "createdAt", required = false) String sortBy,
                                                                 @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir){
-        log.info("Retrieving all categories: {}", categoryService.getAllCategories(page, size,sortBy, sortDir));
+        log.info("Retrieving all categories");
 
         return ResponseEntity.ok().body(categoryService.getAllCategories(page, size,sortBy, sortDir));
     }
@@ -38,7 +41,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{Id}")
-    public ResponseEntity<CategoryDTO> getCategoryById(@PathVariable("Id") Long Id) throws CategoryNotFoundException {
+    public ResponseEntity<Optional<CategoryDTO>> getCategoryById(@PathVariable("Id") Long Id) throws CategoryNotFoundException {
         log.info("Retrieving a category with Id: {}", Id);
 
         return ResponseEntity.ok().body(categoryService.getCategory(Id));
@@ -62,5 +65,14 @@ public class CategoryController {
         log.info("Successfully deleted category with Id {}", categoryId);
 
         return ResponseEntity.ok("Category deleted successfully!");
+    }
+
+    @GetMapping("/check/{Id}")
+    public ResponseEntity<Optional<Long>> checkCategoryById(@PathVariable("Id") Long Id){
+        Optional<Long> categoryId = Optional.ofNullable(categoryService.getCategory(Id).get().categoryId());
+        if(categoryId.isEmpty()){
+            throw new CategoryNotFoundException("Category Not Found!!..");
+        }
+        return ResponseEntity.ok().body(categoryId);
     }
 }
