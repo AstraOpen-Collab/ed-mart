@@ -37,10 +37,11 @@ services:
       MYSQL_DATABASE: edmart-server
       MYSQL_USER: edmart
       MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: admin123
     ports:
       - '3306:3306'
     volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - my-db:/var/lib/mysql
     networks:
       - mysql
@@ -53,7 +54,7 @@ services:
       PMA_PORT: 3306
       PHPMYADMIN_PORT: 8078
       MYSQL_USERNAME: edmart
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: admin123
     ports:
       - '8078:80'
     networks:

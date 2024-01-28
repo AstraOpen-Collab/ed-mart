@@ -2,11 +2,8 @@ package com.edmart.product.serviceImpl;
 
 import com.edmart.client.category.CategoryClient;
 import com.edmart.client.exceptions.VendorNotFoundException;
-import com.edmart.client.product.Measurements;
-import com.edmart.client.product.ProductDTO;
-import com.edmart.client.product.ProductResponseDTO;
+import com.edmart.client.product.*;
 import com.edmart.client.exceptions.ProductNotFoundException;
-import com.edmart.client.product.Units;
 import com.edmart.client.vendor.Address;
 import com.edmart.client.vendor.VendorClient;
 import com.edmart.contracts.product.ProductInventorySchema;
@@ -33,6 +30,7 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.beans.PropertyDescriptor;
 import java.util.*;
@@ -90,16 +88,20 @@ public class ProductServiceImpl implements ProductService {
 
             //Sending message to productInventoryTopic
 
-            ProductInventorySchema message = new ProductInventorySchema(
-                    product.getProductId(),
-                    productDTO.quantity(),
-                    productDTO.status()
+            SendMessageToProductInventoryTopic(
+                    this.setInventorySchema(
+                            product.getProductId(),
+                            productDTO.quantity(),
+                            productDTO.status())
             );
-            SendMessageToProductInventoryTopic(message);
         }catch (Exception e){
             log.error("Error creating product with vendorId: {}, caused by {}", vendorId, e.getCause());
         }
 
+    }
+
+    public ProductInventorySchema setInventorySchema(Long productId, Integer quantity, ProductStatus status){
+        return new ProductInventorySchema(productId, quantity, status);
     }
 
     public Product setProductProperties(ProductDTO productDTO){
@@ -195,6 +197,13 @@ public class ProductServiceImpl implements ProductService {
             BeanUtils.copyProperties(productDTO, product, getNullPropertyNames(productDTO));
 
             productRepository.save(product);
+
+            if(productDTO.quantity()==null){
+
+            }else{
+
+            }
+
         }catch(Exception ex){
             log.error("Error updating product with name {} caused by {}", productDTO.name(), ex.getMessage());
         }

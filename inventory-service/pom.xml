@@ -28,6 +28,15 @@
           <artifactId>spring-boot-starter-data-jpa</artifactId>
       </dependency>
       <dependency>
+          <groupId>org.postgresql</groupId>
+          <artifactId>postgresql</artifactId>
+          <scope>runtime</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.springframework.cloud</groupId>
+          <artifactId>spring-cloud-sleuth-zipkin</artifactId>
+      </dependency>
+      <dependency>
           <groupId>org.springframework.kafka</groupId>
           <artifactId>spring-kafka</artifactId>
       </dependency>
@@ -37,8 +46,8 @@
           <scope>test</scope>
       </dependency>
       <dependency>
-          <groupId>org.springframework.cloud</groupId>
-          <artifactId>spring-cloud-sleuth-zipkin</artifactId>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-hateoas</artifactId>
       </dependency>
       <dependency>
           <groupId>org.springframework.boot</groupId>
@@ -50,16 +59,22 @@
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-starter-actuator</artifactId>
       </dependency>
-    <dependency>
-        <groupId>mysql</groupId>
-        <artifactId>mysql-connector-java</artifactId>
-        <version>8.0.33</version>
-    </dependency>
+      <dependency>
+          <groupId>org.ed-mart</groupId>
+          <artifactId>client</artifactId>
+          <version>1.0-SNAPSHOT</version>
+          <scope>compile</scope>
+      </dependency>
       <dependency>
           <groupId>org.ed-mart</groupId>
           <artifactId>contracts</artifactId>
           <version>1.0-SNAPSHOT</version>
           <scope>compile</scope>
       </dependency>
+<!--    <dependency>-->
+<!--        <groupId>mysql</groupId>-->
+<!--        <artifactId>mysql-connector-java</artifactId>-->
+<!--        <version>8.0.33</version>-->
+<!--    </dependency>-->
   </dependencies>
 </project>
