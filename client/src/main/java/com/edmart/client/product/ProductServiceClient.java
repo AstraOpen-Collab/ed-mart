@@ -36,9 +36,10 @@ public interface ProductServiceClient {
     @PutMapping("/{productId}")
     ResponseEntity<String> updateProduct(@RequestBody ProductDTO request, @PathVariable("productId") Long productId) throws ProductNotFoundException;
 
-    @PutMapping("/{vendorId}/products/{productId}")
+    @PutMapping("/{productId}/vendors/{vendorId}")
     ResponseEntity<String> updateVendorProduct(@RequestBody ProductDTO request, @PathVariable("vendorId") Long vendorId, @PathVariable("productId") Long productId)
             throws ProductNotFoundException, VendorNotFoundException;
+
     @DeleteMapping("/{productId}")
     ResponseEntity<String> deleteProduct(@PathVariable("productId") Long productId) throws ProductNotFoundException;
 
