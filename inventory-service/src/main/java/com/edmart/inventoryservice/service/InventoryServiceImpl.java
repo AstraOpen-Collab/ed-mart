@@ -3,6 +3,7 @@ package com.edmart.inventoryservice.service;
 import com.edmart.client.exceptions.InventoryNotFoundException;
 import com.edmart.client.exceptions.ProductNotFoundException;
 import com.edmart.client.inventory.InventoryRequest;
+import com.edmart.contracts.product.InventorySchema;
 import com.edmart.inventoryservice.dtomapper.InventoryDtoMapper;
 import com.edmart.inventoryservice.entity.Inventory;
 import com.edmart.inventoryservice.repository.InventoryRepository;
@@ -58,11 +59,11 @@ public class InventoryServiceImpl implements InventoryService{
             topics = "product_inventory_topic",
             groupId = "${spring.kafka.consumer.group-id}"
     )
-    public void consumeInventoryEvent(ProductInventorySchema inventorySchema) {
+    public void consumeInventoryEvent(InventorySchema inventorySchema) {
         log.info("Item received successfully: " + inventorySchema);
 
-        Integer receivedQty = inventorySchema.quantity();
-        Optional<Inventory> itemInventory = inventoryRepository.findByProductId(inventorySchema.productId());
+        Integer receivedQty = inventorySchema.getQuantity();
+        Optional<Inventory> itemInventory = inventoryRepository.findByProductId(inventorySchema.getProductId());
 
         itemInventory.ifPresentOrElse(
                 existingInventory -> {
@@ -71,14 +72,15 @@ public class InventoryServiceImpl implements InventoryService{
                 },
                 () -> {
                     Inventory inventory = new Inventory();
-                    inventory.setProductId(inventorySchema.productId());
+                    inventory.setProductId(inventorySchema.getProductId());
                     inventory.setItemQuantity(receivedQty);
+                    inventory.setStatus(inventorySchema.getProductStatus().toString());
 
                     inventoryRepository.save(inventory);
                 }
         );
 
-        log.info("Successfully process the item with quantity : {}", inventorySchema.quantity());
+        log.info("Successfully process the item with quantity : {}", inventorySchema.getQuantity());
     }
 
 }

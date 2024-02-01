@@ -5,6 +5,7 @@ import java.io.Serializable;
 public record InventoryRequest(
         Long inventoryId,
         Long productId,
-        Integer quantity
+        Integer quantity,
+        String status
 ) implements Serializable {
 }

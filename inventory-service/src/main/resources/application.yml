@@ -36,17 +36,20 @@ spring:
     base-url: http://localhost:9412
 
   kafka:
+    bootstrap-servers: "127.0.0.1:9092"
     consumer:
-      bootstrap-servers: localhost:9092
-      group-id: inventory
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: "product-inventory-group-id"
+      keyDeserializer: "org.apache.kafka.common.serialization.StringDeserializer"
+      valueDeserializer: "io.confluent.kafka.serializers.KafkaAvroDeserializer"
+      autoOffsetReset: "earliest"
       properties:
-        spring:
-          json:
-            trusted:
-              packages: "*"
+        schema:
+          registry:
+            url: "http://127.0.0.1:8081"
+        specific:
+          avro:
+            reader: "true"
+
 
 eureka:
   client:

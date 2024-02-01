@@ -3,11 +3,11 @@
  *
  * DO NOT EDIT DIRECTLY
  */
-package com.edmart.product.schema;
+package com.edmart.contracts.product;
 @org.apache.avro.specific.AvroGenerated
 public enum ProductStatus implements org.apache.avro.generic.GenericEnumSymbol<ProductStatus> {
   ACTIVE, INACTIVE  ;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"enum\",\"name\":\"ProductStatus\",\"namespace\":\"com.edmart.product.schema\",\"symbols\":[\"ACTIVE\",\"INACTIVE\"]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"enum\",\"name\":\"ProductStatus\",\"namespace\":\"com.edmart.contracts.product\",\"symbols\":[\"ACTIVE\",\"INACTIVE\"]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
 }

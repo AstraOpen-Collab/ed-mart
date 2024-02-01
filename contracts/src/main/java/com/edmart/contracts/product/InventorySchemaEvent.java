@@ -3,7 +3,7 @@
  *
  * DO NOT EDIT DIRECTLY
  */
-package com.edmart.product.schema;
+package com.edmart.contracts.product;
 
 import org.apache.avro.generic.GenericArray;
 import org.apache.avro.specific.SpecificData;
@@ -14,8 +14,8 @@ import org.apache.avro.message.SchemaStore;
 
 @org.apache.avro.specific.AvroGenerated
 public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = 1728313110582759676L;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"InventorySchemaEvent\",\"namespace\":\"com.edmart.product.schema\",\"fields\":[{\"name\":\"productId\",\"type\":\"long\"},{\"name\":\"quantity\",\"type\":\"int\"}]}");
+  private static final long serialVersionUID = 3140241412179669986L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"InventorySchemaEvent\",\"namespace\":\"com.edmart.contracts.product\",\"fields\":[{\"name\":\"productId\",\"type\":\"long\"},{\"name\":\"quantity\",\"type\":\"int\"},{\"name\":\"productStatus\",\"type\":{\"type\":\"enum\",\"name\":\"ProductStatus\",\"symbols\":[\"ACTIVE\",\"INACTIVE\"]}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static SpecificData MODEL$ = new SpecificData();
@@ -73,6 +73,7 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
 
    private long productId;
    private int quantity;
+   private com.edmart.contracts.product.ProductStatus productStatus;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -85,10 +86,12 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
    * All-args constructor.
    * @param productId The new value for productId
    * @param quantity The new value for quantity
+   * @param productStatus The new value for productStatus
    */
-  public InventorySchemaEvent(java.lang.Long productId, java.lang.Integer quantity) {
+  public InventorySchemaEvent(java.lang.Long productId, java.lang.Integer quantity, com.edmart.contracts.product.ProductStatus productStatus) {
     this.productId = productId;
     this.quantity = quantity;
+    this.productStatus = productStatus;
   }
 
   public org.apache.avro.specific.SpecificData getSpecificData() { return MODEL$; }
@@ -98,6 +101,7 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
     switch (field$) {
     case 0: return productId;
     case 1: return quantity;
+    case 2: return productStatus;
     default: throw new IndexOutOfBoundsException("Invalid index: " + field$);
     }
   }
@@ -108,6 +112,7 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
     switch (field$) {
     case 0: productId = (java.lang.Long)value$; break;
     case 1: quantity = (java.lang.Integer)value$; break;
+    case 2: productStatus = (com.edmart.contracts.product.ProductStatus)value$; break;
     default: throw new IndexOutOfBoundsException("Invalid index: " + field$);
     }
   }
@@ -147,11 +152,28 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
   }
 
   /**
+   * Gets the value of the 'productStatus' field.
+   * @return The value of the 'productStatus' field.
+   */
+  public com.edmart.contracts.product.ProductStatus getProductStatus() {
+    return productStatus;
+  }
+
+
+  /**
+   * Sets the value of the 'productStatus' field.
+   * @param value the value to set.
+   */
+  public void setProductStatus(com.edmart.contracts.product.ProductStatus value) {
+    this.productStatus = value;
+  }
+
+  /**
    * Creates a new InventorySchemaEvent RecordBuilder.
    * @return A new InventorySchemaEvent RecordBuilder
    */
-  public static com.edmart.product.schema.InventorySchemaEvent.Builder newBuilder() {
-    return new com.edmart.product.schema.InventorySchemaEvent.Builder();
+  public static com.edmart.contracts.product.InventorySchemaEvent.Builder newBuilder() {
+    return new com.edmart.contracts.product.InventorySchemaEvent.Builder();
   }
 
   /**
@@ -159,11 +181,11 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
    * @param other The existing builder to copy.
    * @return A new InventorySchemaEvent RecordBuilder
    */
-  public static com.edmart.product.schema.InventorySchemaEvent.Builder newBuilder(com.edmart.product.schema.InventorySchemaEvent.Builder other) {
+  public static com.edmart.contracts.product.InventorySchemaEvent.Builder newBuilder(com.edmart.contracts.product.InventorySchemaEvent.Builder other) {
     if (other == null) {
-      return new com.edmart.product.schema.InventorySchemaEvent.Builder();
+      return new com.edmart.contracts.product.InventorySchemaEvent.Builder();
     } else {
-      return new com.edmart.product.schema.InventorySchemaEvent.Builder(other);
+      return new com.edmart.contracts.product.InventorySchemaEvent.Builder(other);
     }
   }
 
@@ -172,11 +194,11 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
    * @param other The existing instance to copy.
    * @return A new InventorySchemaEvent RecordBuilder
    */
-  public static com.edmart.product.schema.InventorySchemaEvent.Builder newBuilder(com.edmart.product.schema.InventorySchemaEvent other) {
+  public static com.edmart.contracts.product.InventorySchemaEvent.Builder newBuilder(com.edmart.contracts.product.InventorySchemaEvent other) {
     if (other == null) {
-      return new com.edmart.product.schema.InventorySchemaEvent.Builder();
+      return new com.edmart.contracts.product.InventorySchemaEvent.Builder();
     } else {
-      return new com.edmart.product.schema.InventorySchemaEvent.Builder(other);
+      return new com.edmart.contracts.product.InventorySchemaEvent.Builder(other);
     }
   }
 
@@ -189,6 +211,7 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
 
     private long productId;
     private int quantity;
+    private com.edmart.contracts.product.ProductStatus productStatus;
 
     /** Creates a new Builder */
     private Builder() {
@@ -199,7 +222,7 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
      * Creates a Builder by copying an existing Builder.
      * @param other The existing Builder to copy.
      */
-    private Builder(com.edmart.product.schema.InventorySchemaEvent.Builder other) {
+    private Builder(com.edmart.contracts.product.InventorySchemaEvent.Builder other) {
       super(other);
       if (isValidValue(fields()[0], other.productId)) {
         this.productId = data().deepCopy(fields()[0].schema(), other.productId);
@@ -209,13 +232,17 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
         this.quantity = data().deepCopy(fields()[1].schema(), other.quantity);
         fieldSetFlags()[1] = other.fieldSetFlags()[1];
       }
+      if (isValidValue(fields()[2], other.productStatus)) {
+        this.productStatus = data().deepCopy(fields()[2].schema(), other.productStatus);
+        fieldSetFlags()[2] = other.fieldSetFlags()[2];
+      }
     }
 
     /**
      * Creates a Builder by copying an existing InventorySchemaEvent instance
      * @param other The existing instance to copy.
      */
-    private Builder(com.edmart.product.schema.InventorySchemaEvent other) {
+    private Builder(com.edmart.contracts.product.InventorySchemaEvent other) {
       super(SCHEMA$);
       if (isValidValue(fields()[0], other.productId)) {
         this.productId = data().deepCopy(fields()[0].schema(), other.productId);
@@ -224,6 +251,10 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
       if (isValidValue(fields()[1], other.quantity)) {
         this.quantity = data().deepCopy(fields()[1].schema(), other.quantity);
         fieldSetFlags()[1] = true;
+      }
+      if (isValidValue(fields()[2], other.productStatus)) {
+        this.productStatus = data().deepCopy(fields()[2].schema(), other.productStatus);
+        fieldSetFlags()[2] = true;
       }
     }
 
@@ -241,7 +272,7 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
       * @param value The value of 'productId'.
       * @return This builder.
       */
-    public com.edmart.product.schema.InventorySchemaEvent.Builder setProductId(long value) {
+    public com.edmart.contracts.product.InventorySchemaEvent.Builder setProductId(long value) {
       validate(fields()[0], value);
       this.productId = value;
       fieldSetFlags()[0] = true;
@@ -261,7 +292,7 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
       * Clears the value of the 'productId' field.
       * @return This builder.
       */
-    public com.edmart.product.schema.InventorySchemaEvent.Builder clearProductId() {
+    public com.edmart.contracts.product.InventorySchemaEvent.Builder clearProductId() {
       fieldSetFlags()[0] = false;
       return this;
     }
@@ -280,7 +311,7 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
       * @param value The value of 'quantity'.
       * @return This builder.
       */
-    public com.edmart.product.schema.InventorySchemaEvent.Builder setQuantity(int value) {
+    public com.edmart.contracts.product.InventorySchemaEvent.Builder setQuantity(int value) {
       validate(fields()[1], value);
       this.quantity = value;
       fieldSetFlags()[1] = true;
@@ -300,8 +331,48 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
       * Clears the value of the 'quantity' field.
       * @return This builder.
       */
-    public com.edmart.product.schema.InventorySchemaEvent.Builder clearQuantity() {
+    public com.edmart.contracts.product.InventorySchemaEvent.Builder clearQuantity() {
       fieldSetFlags()[1] = false;
+      return this;
+    }
+
+    /**
+      * Gets the value of the 'productStatus' field.
+      * @return The value.
+      */
+    public com.edmart.contracts.product.ProductStatus getProductStatus() {
+      return productStatus;
+    }
+
+
+    /**
+      * Sets the value of the 'productStatus' field.
+      * @param value The value of 'productStatus'.
+      * @return This builder.
+      */
+    public com.edmart.contracts.product.InventorySchemaEvent.Builder setProductStatus(com.edmart.contracts.product.ProductStatus value) {
+      validate(fields()[2], value);
+      this.productStatus = value;
+      fieldSetFlags()[2] = true;
+      return this;
+    }
+
+    /**
+      * Checks whether the 'productStatus' field has been set.
+      * @return True if the 'productStatus' field has been set, false otherwise.
+      */
+    public boolean hasProductStatus() {
+      return fieldSetFlags()[2];
+    }
+
+
+    /**
+      * Clears the value of the 'productStatus' field.
+      * @return This builder.
+      */
+    public com.edmart.contracts.product.InventorySchemaEvent.Builder clearProductStatus() {
+      productStatus = null;
+      fieldSetFlags()[2] = false;
       return this;
     }
 
@@ -312,6 +383,7 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
         InventorySchemaEvent record = new InventorySchemaEvent();
         record.productId = fieldSetFlags()[0] ? this.productId : (java.lang.Long) defaultValue(fields()[0]);
         record.quantity = fieldSetFlags()[1] ? this.quantity : (java.lang.Integer) defaultValue(fields()[1]);
+        record.productStatus = fieldSetFlags()[2] ? this.productStatus : (com.edmart.contracts.product.ProductStatus) defaultValue(fields()[2]);
         return record;
       } catch (org.apache.avro.AvroMissingFieldException e) {
         throw e;
@@ -348,6 +420,8 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
 
     out.writeInt(this.quantity);
 
+    out.writeEnum(this.productStatus.ordinal());
+
   }
 
   @Override public void customDecode(org.apache.avro.io.ResolvingDecoder in)
@@ -359,8 +433,10 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
 
       this.quantity = in.readInt();
 
+      this.productStatus = com.edmart.contracts.product.ProductStatus.values()[in.readEnum()];
+
     } else {
-      for (int i = 0; i < 2; i++) {
+      for (int i = 0; i < 3; i++) {
         switch (fieldOrder[i].pos()) {
         case 0:
           this.productId = in.readLong();
@@ -368,6 +444,10 @@ public class InventorySchemaEvent extends org.apache.avro.specific.SpecificRecor
 
         case 1:
           this.quantity = in.readInt();
+          break;
+
+        case 2:
+          this.productStatus = com.edmart.contracts.product.ProductStatus.values()[in.readEnum()];
           break;
 
         default:

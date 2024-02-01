@@ -1,6 +1,6 @@
 {
   "type": "record",
-  "name": "ProductInventorySchema",
+  "name": "InventorySchema",
   "namespace": "com.edmart.contracts.product",
   "fields": [
     {"name": "productId", "type": "long"},

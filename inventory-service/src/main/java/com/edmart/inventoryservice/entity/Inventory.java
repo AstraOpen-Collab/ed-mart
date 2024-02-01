@@ -31,5 +31,6 @@ public class Inventory extends BaseEntity implements Serializable {
     private Long inventoryId;
     private Long productId;
     private Integer itemQuantity;
+    private String status;
 
 }

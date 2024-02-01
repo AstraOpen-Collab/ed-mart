@@ -5,12 +5,11 @@ import com.edmart.client.exceptions.VendorNotFoundException;
 import com.edmart.client.product.*;
 import com.edmart.client.exceptions.ProductNotFoundException;
 import com.edmart.client.vendor.VendorClient;
+import com.edmart.contracts.product.InventorySchema;
+import com.edmart.contracts.product.ProductStatus;
 import com.edmart.product.mappers.ProductMapper;
 import com.edmart.product.model.Product;
 import com.edmart.product.repository.ProductRepository;
-import com.edmart.product.schema.InventorySchema;
-import com.edmart.product.schema.InventorySchemaEvent;
-import com.edmart.product.schema.ProductStatus;
 import com.edmart.product.service.ProductService;
 import com.edmart.product.utils.Pagination;
 import lombok.AllArgsConstructor;
@@ -50,7 +49,7 @@ public class ProductServiceImpl implements ProductService {
 
     private static final Long DEFAULT_CATEGORY_ID = 0L;
     private final NewTopic topic;
-    private final KafkaTemplate<String, InventorySchemaEvent> kafkaTemplate;
+    private final KafkaTemplate<String, InventorySchema> kafkaTemplate;
 
 
     @Override
@@ -62,9 +61,10 @@ public class ProductServiceImpl implements ProductService {
 
             String itemStatus = productDTO.status().toString();
 
-            InventorySchemaEvent message = new InventorySchemaEvent(
+            InventorySchema message = new InventorySchema(
                     product.getProductId(),
-                    productDTO.quantity()
+                    productDTO.quantity(),
+                    ProductStatus.valueOf(productDTO.status().getClass().getName())
             );
             SendMessageToProductInventoryTopic(message);
         }catch (Exception e){
@@ -87,11 +87,14 @@ public class ProductServiceImpl implements ProductService {
             productRepository.save(product);
 
             //Sending message to productInventoryTopic
-
+            log.info("++++++++++++READING ENUM VALUE: {}", productDTO.status().toString());
             SendMessageToProductInventoryTopic(
                     this.setInventorySchema(
                             product.getProductId(),
-                            productDTO.quantity())
+                            productDTO.quantity(),
+                            ProductStatus.valueOf(productDTO.status().toString())
+
+                    )
             );
         }catch (Exception e){
             log.error("Error creating product with vendorId: {}, caused by {}", vendorId, e.getCause());
@@ -99,8 +102,8 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
-    public InventorySchemaEvent setInventorySchema(long productId, int quantity){
-        return new InventorySchemaEvent(productId, quantity);
+    public InventorySchema setInventorySchema(long productId, int quantity, ProductStatus status){
+        return new InventorySchema(productId, quantity, status);
     }
 
     public Product setProductProperties(ProductDTO productDTO){
@@ -205,7 +208,9 @@ public class ProductServiceImpl implements ProductService {
                 SendMessageToProductInventoryTopic(
                         this.setInventorySchema(
                                 product.getProductId(),
-                                productDTO.quantity())
+                                productDTO.quantity(),
+                                ProductStatus.valueOf(productDTO.status().toString())
+                        )
                 );
             }
 
@@ -272,9 +277,9 @@ public class ProductServiceImpl implements ProductService {
 //        kafkaTemplate.send(message);
 //    }
 
-    public void SendMessageToProductInventoryTopic(InventorySchemaEvent inventorySchemaEvent){
+    public void SendMessageToProductInventoryTopic(InventorySchema inventorySchemaEvent){
         log.info("sending new Inventory event data => : {}", inventorySchemaEvent);
-        Message<InventorySchemaEvent> payload = MessageBuilder
+        Message<InventorySchema> payload = MessageBuilder
                 .withPayload(inventorySchemaEvent)
                 .setHeader(KafkaHeaders.TOPIC, topic.name())
                 .build();

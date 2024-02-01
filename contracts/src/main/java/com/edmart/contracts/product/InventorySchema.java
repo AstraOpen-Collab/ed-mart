@@ -3,7 +3,7 @@
  *
  * DO NOT EDIT DIRECTLY
  */
-package com.edmart.product.schema;
+package com.edmart.contracts.product;
 
 import org.apache.avro.generic.GenericArray;
 import org.apache.avro.specific.SpecificData;
@@ -14,8 +14,8 @@ import org.apache.avro.message.SchemaStore;
 
 @org.apache.avro.specific.AvroGenerated
 public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = 6492537122682575179L;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"InventorySchema\",\"namespace\":\"com.edmart.product.schema\",\"fields\":[{\"name\":\"productId\",\"type\":\"long\"},{\"name\":\"quantity\",\"type\":\"int\"},{\"name\":\"productStatus\",\"type\":{\"type\":\"enum\",\"name\":\"ProductStatus\",\"symbols\":[\"ACTIVE\",\"INACTIVE\"]}}]}");
+  private static final long serialVersionUID = 4114389208946163022L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"InventorySchema\",\"namespace\":\"com.edmart.contracts.product\",\"fields\":[{\"name\":\"productId\",\"type\":\"long\"},{\"name\":\"quantity\",\"type\":\"int\"},{\"name\":\"productStatus\",\"type\":{\"type\":\"enum\",\"name\":\"ProductStatus\",\"symbols\":[\"ACTIVE\",\"INACTIVE\"]}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static SpecificData MODEL$ = new SpecificData();
@@ -73,7 +73,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
 
    private long productId;
    private int quantity;
-   private com.edmart.product.schema.ProductStatus productStatus;
+   private com.edmart.contracts.product.ProductStatus productStatus;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -88,7 +88,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
    * @param quantity The new value for quantity
    * @param productStatus The new value for productStatus
    */
-  public InventorySchema(java.lang.Long productId, java.lang.Integer quantity, com.edmart.product.schema.ProductStatus productStatus) {
+  public InventorySchema(java.lang.Long productId, java.lang.Integer quantity, com.edmart.contracts.product.ProductStatus productStatus) {
     this.productId = productId;
     this.quantity = quantity;
     this.productStatus = productStatus;
@@ -112,7 +112,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
     switch (field$) {
     case 0: productId = (java.lang.Long)value$; break;
     case 1: quantity = (java.lang.Integer)value$; break;
-    case 2: productStatus = (com.edmart.product.schema.ProductStatus)value$; break;
+    case 2: productStatus = (com.edmart.contracts.product.ProductStatus)value$; break;
     default: throw new IndexOutOfBoundsException("Invalid index: " + field$);
     }
   }
@@ -155,7 +155,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
    * Gets the value of the 'productStatus' field.
    * @return The value of the 'productStatus' field.
    */
-  public com.edmart.product.schema.ProductStatus getProductStatus() {
+  public com.edmart.contracts.product.ProductStatus getProductStatus() {
     return productStatus;
   }
 
@@ -164,7 +164,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
    * Sets the value of the 'productStatus' field.
    * @param value the value to set.
    */
-  public void setProductStatus(com.edmart.product.schema.ProductStatus value) {
+  public void setProductStatus(com.edmart.contracts.product.ProductStatus value) {
     this.productStatus = value;
   }
 
@@ -172,8 +172,8 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
    * Creates a new InventorySchema RecordBuilder.
    * @return A new InventorySchema RecordBuilder
    */
-  public static com.edmart.product.schema.InventorySchema.Builder newBuilder() {
-    return new com.edmart.product.schema.InventorySchema.Builder();
+  public static com.edmart.contracts.product.InventorySchema.Builder newBuilder() {
+    return new com.edmart.contracts.product.InventorySchema.Builder();
   }
 
   /**
@@ -181,11 +181,11 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
    * @param other The existing builder to copy.
    * @return A new InventorySchema RecordBuilder
    */
-  public static com.edmart.product.schema.InventorySchema.Builder newBuilder(com.edmart.product.schema.InventorySchema.Builder other) {
+  public static com.edmart.contracts.product.InventorySchema.Builder newBuilder(com.edmart.contracts.product.InventorySchema.Builder other) {
     if (other == null) {
-      return new com.edmart.product.schema.InventorySchema.Builder();
+      return new com.edmart.contracts.product.InventorySchema.Builder();
     } else {
-      return new com.edmart.product.schema.InventorySchema.Builder(other);
+      return new com.edmart.contracts.product.InventorySchema.Builder(other);
     }
   }
 
@@ -194,11 +194,11 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
    * @param other The existing instance to copy.
    * @return A new InventorySchema RecordBuilder
    */
-  public static com.edmart.product.schema.InventorySchema.Builder newBuilder(com.edmart.product.schema.InventorySchema other) {
+  public static com.edmart.contracts.product.InventorySchema.Builder newBuilder(com.edmart.contracts.product.InventorySchema other) {
     if (other == null) {
-      return new com.edmart.product.schema.InventorySchema.Builder();
+      return new com.edmart.contracts.product.InventorySchema.Builder();
     } else {
-      return new com.edmart.product.schema.InventorySchema.Builder(other);
+      return new com.edmart.contracts.product.InventorySchema.Builder(other);
     }
   }
 
@@ -211,7 +211,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
 
     private long productId;
     private int quantity;
-    private com.edmart.product.schema.ProductStatus productStatus;
+    private com.edmart.contracts.product.ProductStatus productStatus;
 
     /** Creates a new Builder */
     private Builder() {
@@ -222,7 +222,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
      * Creates a Builder by copying an existing Builder.
      * @param other The existing Builder to copy.
      */
-    private Builder(com.edmart.product.schema.InventorySchema.Builder other) {
+    private Builder(com.edmart.contracts.product.InventorySchema.Builder other) {
       super(other);
       if (isValidValue(fields()[0], other.productId)) {
         this.productId = data().deepCopy(fields()[0].schema(), other.productId);
@@ -242,7 +242,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
      * Creates a Builder by copying an existing InventorySchema instance
      * @param other The existing instance to copy.
      */
-    private Builder(com.edmart.product.schema.InventorySchema other) {
+    private Builder(com.edmart.contracts.product.InventorySchema other) {
       super(SCHEMA$);
       if (isValidValue(fields()[0], other.productId)) {
         this.productId = data().deepCopy(fields()[0].schema(), other.productId);
@@ -272,7 +272,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
       * @param value The value of 'productId'.
       * @return This builder.
       */
-    public com.edmart.product.schema.InventorySchema.Builder setProductId(long value) {
+    public com.edmart.contracts.product.InventorySchema.Builder setProductId(long value) {
       validate(fields()[0], value);
       this.productId = value;
       fieldSetFlags()[0] = true;
@@ -292,7 +292,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
       * Clears the value of the 'productId' field.
       * @return This builder.
       */
-    public com.edmart.product.schema.InventorySchema.Builder clearProductId() {
+    public com.edmart.contracts.product.InventorySchema.Builder clearProductId() {
       fieldSetFlags()[0] = false;
       return this;
     }
@@ -311,7 +311,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
       * @param value The value of 'quantity'.
       * @return This builder.
       */
-    public com.edmart.product.schema.InventorySchema.Builder setQuantity(int value) {
+    public com.edmart.contracts.product.InventorySchema.Builder setQuantity(int value) {
       validate(fields()[1], value);
       this.quantity = value;
       fieldSetFlags()[1] = true;
@@ -331,7 +331,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
       * Clears the value of the 'quantity' field.
       * @return This builder.
       */
-    public com.edmart.product.schema.InventorySchema.Builder clearQuantity() {
+    public com.edmart.contracts.product.InventorySchema.Builder clearQuantity() {
       fieldSetFlags()[1] = false;
       return this;
     }
@@ -340,7 +340,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
       * Gets the value of the 'productStatus' field.
       * @return The value.
       */
-    public com.edmart.product.schema.ProductStatus getProductStatus() {
+    public com.edmart.contracts.product.ProductStatus getProductStatus() {
       return productStatus;
     }
 
@@ -350,7 +350,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
       * @param value The value of 'productStatus'.
       * @return This builder.
       */
-    public com.edmart.product.schema.InventorySchema.Builder setProductStatus(com.edmart.product.schema.ProductStatus value) {
+    public com.edmart.contracts.product.InventorySchema.Builder setProductStatus(com.edmart.contracts.product.ProductStatus value) {
       validate(fields()[2], value);
       this.productStatus = value;
       fieldSetFlags()[2] = true;
@@ -370,7 +370,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
       * Clears the value of the 'productStatus' field.
       * @return This builder.
       */
-    public com.edmart.product.schema.InventorySchema.Builder clearProductStatus() {
+    public com.edmart.contracts.product.InventorySchema.Builder clearProductStatus() {
       productStatus = null;
       fieldSetFlags()[2] = false;
       return this;
@@ -383,7 +383,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
         InventorySchema record = new InventorySchema();
         record.productId = fieldSetFlags()[0] ? this.productId : (java.lang.Long) defaultValue(fields()[0]);
         record.quantity = fieldSetFlags()[1] ? this.quantity : (java.lang.Integer) defaultValue(fields()[1]);
-        record.productStatus = fieldSetFlags()[2] ? this.productStatus : (com.edmart.product.schema.ProductStatus) defaultValue(fields()[2]);
+        record.productStatus = fieldSetFlags()[2] ? this.productStatus : (com.edmart.contracts.product.ProductStatus) defaultValue(fields()[2]);
         return record;
       } catch (org.apache.avro.AvroMissingFieldException e) {
         throw e;
@@ -433,7 +433,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
 
       this.quantity = in.readInt();
 
-      this.productStatus = com.edmart.product.schema.ProductStatus.values()[in.readEnum()];
+      this.productStatus = com.edmart.contracts.product.ProductStatus.values()[in.readEnum()];
 
     } else {
       for (int i = 0; i < 3; i++) {
@@ -447,7 +447,7 @@ public class InventorySchema extends org.apache.avro.specific.SpecificRecordBase
           break;
 
         case 2:
-          this.productStatus = com.edmart.product.schema.ProductStatus.values()[in.readEnum()];
+          this.productStatus = com.edmart.contracts.product.ProductStatus.values()[in.readEnum()];
           break;
 
         default:
