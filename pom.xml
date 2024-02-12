@@ -14,6 +14,8 @@
       <module>client</module>
       <module>vendor-service</module>
       <module>inventory-service</module>
+      <module>discount-service</module>
+      <module>elasticsearch-service</module>
   </modules>
   <name>ed-mart</name>
 
@@ -24,7 +26,7 @@
     <spring.boot.maven.plugin.version>2.5.7</spring.boot.maven.plugin.version>
     <spring.boot.dependencies.version>2.5.7</spring.boot.dependencies.version>
     <spring.cloud-version>2020.0.3</spring.cloud-version>
-    <image>astraworksit/${project.artifactId}:${project.version}</image>
+    <image>astraopencollabs/${project.artifactId}:${project.version}</image>
   </properties>
 
   <dependencyManagement>
@@ -106,7 +108,6 @@
             </execution>
           </executions>
         </plugin>
-
       </plugins>
     </pluginManagement>
   </build>

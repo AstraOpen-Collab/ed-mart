@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: discount-service
+server:
+  port: 8086
+
+

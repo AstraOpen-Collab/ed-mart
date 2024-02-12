@@ -1,6 +1,7 @@
 package com.edmart.client.product;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable
+@Builder
 public class Prices implements Serializable{
 
     private BigDecimal oldPrice;
