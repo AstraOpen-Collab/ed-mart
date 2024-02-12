@@ -1,0 +1,36 @@
+spring:
+  elasticsearch:
+    rest:
+      uris: http://localhost:9200
+
+  application:
+    name: elasticsearch-service
+
+  zipkin:
+    base-url: http://localhost:9412
+
+  kafka:
+    bootstrap-servers: "127.0.0.1:9092"
+    consumer:
+      group-id: "elasticsearch-group-id"
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+  data:
+    elasticsearch:
+      repositories:
+        enabled: true
+      client:
+        reactive:
+          connection-timeout: 1000
+
+
+server:
+  port: 8089
+
+

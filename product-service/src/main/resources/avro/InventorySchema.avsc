@@ -1,0 +1,10 @@
+{
+  "type": "record",
+  "name": "InventorySchemaEvent",
+  "namespace": "com.edmart.product.schema",
+  "fields": [
+    {"name": "productId", "type": "long"},
+    {"name": "quantity", "type": "int"},
+    {"name": "status", "type": "string"}
+  ]
+}

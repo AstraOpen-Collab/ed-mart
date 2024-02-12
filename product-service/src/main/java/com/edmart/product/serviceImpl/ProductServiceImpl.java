@@ -4,9 +4,9 @@ import com.edmart.client.category.CategoryClient;
 import com.edmart.client.exceptions.VendorNotFoundException;
 import com.edmart.client.product.*;
 import com.edmart.client.exceptions.ProductNotFoundException;
-import com.edmart.client.vendor.Address;
 import com.edmart.client.vendor.VendorClient;
-import com.edmart.contracts.product.ProductInventorySchema;
+import com.edmart.contracts.product.InventorySchema;
+import com.edmart.contracts.product.ProductStatus;
 import com.edmart.product.mappers.ProductMapper;
 import com.edmart.product.model.Product;
 import com.edmart.product.repository.ProductRepository;
@@ -30,11 +30,9 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import java.beans.PropertyDescriptor;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -51,7 +49,7 @@ public class ProductServiceImpl implements ProductService {
 
     private static final Long DEFAULT_CATEGORY_ID = 0L;
     private final NewTopic topic;
-    private final KafkaTemplate<String, ProductInventorySchema> kafkaTemplate;
+    private final KafkaTemplate<String, InventorySchema> kafkaTemplate;
 
 
     @Override
@@ -61,10 +59,12 @@ public class ProductServiceImpl implements ProductService {
         try{
             productRepository.save(product);
 
-            ProductInventorySchema message = new ProductInventorySchema(
+            String itemStatus = productDTO.status().toString();
+
+            InventorySchema message = new InventorySchema(
                     product.getProductId(),
                     productDTO.quantity(),
-                    productDTO.status()
+                    ProductStatus.valueOf(productDTO.status().getClass().getName())
             );
             SendMessageToProductInventoryTopic(message);
         }catch (Exception e){
@@ -87,12 +87,14 @@ public class ProductServiceImpl implements ProductService {
             productRepository.save(product);
 
             //Sending message to productInventoryTopic
-
+            log.info("++++++++++++READING ENUM VALUE: {}", productDTO.status().toString());
             SendMessageToProductInventoryTopic(
                     this.setInventorySchema(
                             product.getProductId(),
                             productDTO.quantity(),
-                            productDTO.status())
+                            ProductStatus.valueOf(productDTO.status().toString())
+
+                    )
             );
         }catch (Exception e){
             log.error("Error creating product with vendorId: {}, caused by {}", vendorId, e.getCause());
@@ -100,8 +102,8 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
-    public ProductInventorySchema setInventorySchema(Long productId, Integer quantity, ProductStatus status){
-        return new ProductInventorySchema(productId, quantity, status);
+    public InventorySchema setInventorySchema(long productId, int quantity, ProductStatus status){
+        return new InventorySchema(productId, quantity, status);
     }
 
     public Product setProductProperties(ProductDTO productDTO){
@@ -196,12 +198,20 @@ public class ProductServiceImpl implements ProductService {
 
             BeanUtils.copyProperties(productDTO, product, getNullPropertyNames(productDTO));
 
-            productRepository.save(product);
+
 
             if(productDTO.quantity()==null){
-
+                productRepository.save(product);
             }else{
+                productRepository.save(product);
 
+                SendMessageToProductInventoryTopic(
+                        this.setInventorySchema(
+                                product.getProductId(),
+                                productDTO.quantity(),
+                                ProductStatus.valueOf(productDTO.status().toString())
+                        )
+                );
             }
 
         }catch(Exception ex){
@@ -267,10 +277,10 @@ public class ProductServiceImpl implements ProductService {
 //        kafkaTemplate.send(message);
 //    }
 
-    public void SendMessageToProductInventoryTopic(ProductInventorySchema inventorySchema){
-        log.info("sending new Inventory event data => : {}", inventorySchema);
-        Message<ProductInventorySchema> payload = MessageBuilder
-                .withPayload(inventorySchema)
+    public void SendMessageToProductInventoryTopic(InventorySchema inventorySchemaEvent){
+        log.info("sending new Inventory event data => : {}", inventorySchemaEvent);
+        Message<InventorySchema> payload = MessageBuilder
+                .withPayload(inventorySchemaEvent)
                 .setHeader(KafkaHeaders.TOPIC, topic.name())
                 .build();
 

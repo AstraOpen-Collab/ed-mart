@@ -1,6 +1,7 @@
 package com.edmart.client.product;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable
+@Builder
 public class Measurements implements Serializable {
 
     private Double length;

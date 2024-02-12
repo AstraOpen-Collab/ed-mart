@@ -18,6 +18,7 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
 
     Optional<List<ProductDTO>> findProductsByVendorId(Long vendorId) throws VendorNotFoundException;
 
+
     void deleteProductByVendorIdAndAndProductId(Long vendorId, Long productId);
 
     Optional<Product> findProductsByVendorIdAndProductId(Long vendorId, Long productId) throws VendorNotFoundException, ProductNotFoundException;

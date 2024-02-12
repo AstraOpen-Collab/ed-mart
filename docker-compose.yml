@@ -1,18 +1,39 @@
 services:
+#  postgres:
+#    container_name: ed-mart
+#    image: postgres
+#    environment:
+#      POSTGRES_USER: edmart
+#      POSTGRES_PASSWORD: password
+#      PGDATA: /data/postgres
+#    volumes:
+#      - postgres:/data/postgres
+#    ports:
+#      - "5433:5432"
+#    networks:
+#      - postgres
+#    restart: 'unless-stopped'
+
   postgres:
-    container_name: ed-mart
-    image: postgres
+    image: postgres:latest
+    container_name: postgres
+    hostname: postgres
+    ports:
+      - '5433:5432'
     environment:
       POSTGRES_USER: edmart
       POSTGRES_PASSWORD: password
-      PGDATA: /data/postgres
-    volumes:
-      - postgres:/data/postgres
-    ports:
-      - "5433:5432"
+      POSTGRES_DB: edmart
+      PGHOST: postgres
+    command: [ 'postgres', '-c', 'wal_level=logical' ]
+    healthcheck:
+      test: [ 'CMD', 'psql', '-U', 'edmart', '-c', 'SELECT 1' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - postgres
-    restart: 'unless-stopped'
+
 
   pgadmin:
     container_name: pgadmin-edmart
@@ -30,37 +51,37 @@ services:
     restart: 'unless-stopped'
 
 
-  mysql-db:
-    image: mysql:5.7
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: edmart-server
-      MYSQL_USER: edmart
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: admin123
-    ports:
-      - '3306:3306'
-    volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - my-db:/var/lib/mysql
-    networks:
-      - mysql
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    restart: unless-stopped
-    environment:
-      PMA_HOST: mysql-db
-      PMA_PORT: 3306
-      PHPMYADMIN_PORT: 8078
-      MYSQL_USERNAME: edmart
-      MYSQL_ROOT_PASSWORD: admin123
-    ports:
-      - '8078:80'
-    networks:
-      - mysql
-    depends_on:
-      - mysql-db
+#  mysql-db:
+#    image: mysql:5.7
+#    restart: unless-stopped
+#    environment:
+#      MYSQL_DATABASE: edmart-server
+#      MYSQL_USER: edmart
+#      MYSQL_PASSWORD: password
+#      MYSQL_ROOT_PASSWORD: admin123
+#    ports:
+#      - '3306:3306'
+#    volumes:
+#      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+#      - my-db:/var/lib/mysql
+#    networks:
+#      - mysql
+#
+#  phpmyadmin:
+#    image: phpmyadmin/phpmyadmin
+#    restart: unless-stopped
+#    environment:
+#      PMA_HOST: mysql-db
+#      PMA_PORT: 3306
+#      PHPMYADMIN_PORT: 8078
+#      MYSQL_USERNAME: edmart
+#      MYSQL_ROOT_PASSWORD: admin123
+#    ports:
+#      - '8078:80'
+#    networks:
+#      - mysql
+#    depends_on:
+#      - mysql-db
 
   redis-stack-server:
     image: redis/redis-stack:latest
@@ -89,6 +110,38 @@ services:
       - "9412:9411"
     networks:
       - spring
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
+    container_name: elasticsearch
+    restart: unless-stopped
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: false
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    healthcheck:
+      test: "curl -f http://localhost:9200 || exit 1"
+    networks:
+      - elasticsearch-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.10.0
+    container_name: kibana
+    restart: unless-stopped
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5601", "||", "exit", "1" ]
+    networks:
+      - elasticsearch-network
+
 
   zookeeper0:
     image: confluentinc/cp-zookeeper:7.2.1
@@ -130,15 +183,16 @@ services:
   schemaregistry0:
     image: confluentinc/cp-schema-registry:7.2.1
     ports:
-      - 8045:8085
+      - 8081:8081
     depends_on:
       - kafka
     environment:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:29092
       SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
       SCHEMA_REGISTRY_HOST_NAME: schemaregistry0
-      SCHEMA_REGISTRY_LISTENERS: http://schemaregistry0:8045
-
+      SCHEMA_REGISTRY_LISTENERS: http://schemaregistry0:8081
+      SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_METHODS: GET,POST,PUT,OPTIONS
+      SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_ORIGIN: '*'
       SCHEMA_REGISTRY_SCHEMA_REGISTRY_INTER_INSTANCE_PROTOCOL: "http"
       SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL: INFO
       SCHEMA_REGISTRY_KAFKASTORE_TOPIC: _schemas
@@ -162,14 +216,58 @@ services:
       CONNECT_STATUS_STORAGE_TOPIC: _connect_status
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
       CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
-      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://schemaregistry0:8045
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://schemaregistry0:8081
       CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.storage.StringConverter
-      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schemaregistry0:8045
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schemaregistry0:8081
       CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
       CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
       CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect0
       CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
     networks:
+      - kafka-network-01
+
+  debezium:
+    image: debezium/connect:latest
+    container_name: debezium
+    hostname: debezium
+    depends_on:
+      - postgres
+      - kafka
+    ports:
+      - '8093:8083'
+    environment:
+      BOOTSTRAP_SERVERS: kafka:29092
+      CONNECT_REST_ADVERTISED_HOST_NAME: debezium
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: connect_configs
+      STATUS_STORAGE_TOPIC: connect_statuses
+      OFFSET_STORAGE_TOPIC: connect_offsets
+      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      ENABLE_DEBEZIUM_SCRIPTING: 'true'
+    healthcheck:
+      test:
+        [ 'CMD', 'curl', '--silent', '--fail', '-X', 'GET', 'http://localhost:8083/connectors', ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - postgres
+      - kafka-network-01
+
+  debezium-ui:
+    image: debezium/debezium-ui:latest
+    container_name: debezium-ui
+    hostname: debezium-ui
+    depends_on:
+      - debezium
+    ports:
+      - '8025:8080'
+    environment:
+      KAFKA_CONNECT_URIS: http://debezium:8083
+    networks:
+      - postgres
       - kafka-network-01
 
   kafka-ui:
@@ -181,12 +279,13 @@ services:
       - kafka
       - schemaregistry0
       - kafka-connect0
-      - ksqldb
+      - debezium
+#      - ksqldb
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
       KAFKA_CLUSTERS_0_METRICS_PORT: 9997
-      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schemaregistry0:8045
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schemaregistry0:8081
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: first
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect0:8046
       DYNAMIC_CONFIG_ENABLED: 'true'
@@ -216,7 +315,7 @@ services:
       KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
       KSQL_KSQL_CONNECT_URL: http://kafka-connect0:8046
-      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schemaregistry0:8045
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schemaregistry0:8081
       KSQL_KSQL_SERVICE_ID: my_ksql_1
       KSQL_KSQL_HIDDEN_TOPICS: '^_.*'
       KSQL_CACHE_MAX_BYTES_BUFFERING: 0
@@ -235,6 +334,8 @@ networks:
   spring:
     driver: bridge
   kafka-network-01:
+    driver: bridge
+  elasticsearch-network:
     driver: bridge
 
 volumes:

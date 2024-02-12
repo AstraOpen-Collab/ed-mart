@@ -15,7 +15,8 @@ public class InventoryDtoMapper implements Function<Inventory, InventoryRequest>
         return new InventoryRequest(
                 inventory.getInventoryId(),
                 inventory.getProductId(),
-                inventory.getItemQuantity()
+                inventory.getItemQuantity(),
+                inventory.getStatus()
         );
     }
 }
