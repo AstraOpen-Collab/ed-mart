@@ -1,21 +1,29 @@
 package com.edmart.elasticsearch.controller;
 
 import com.edmart.client.product.ProductDTO;
+import com.edmart.elasticsearch.model.Product;
 import com.edmart.elasticsearch.service.ElasticSearchServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/search")
+@RequestMapping("/api/v1/search/products")
 public class ElasticsearchController {
 
     private final ElasticSearchServiceImpl elasticSearchService;
 
-    @PostMapping("{vendorId}")
-    public ResponseEntity<String> saveNewProduct(@PathVariable("vendorId") Long vendorId, @RequestBody ProductDTO product){
-        elasticSearchService.vendorCreateProduct(vendorId, product);
-        return ResponseEntity.ok().body("Item saved to elasticsearch successfully!");
+    @GetMapping
+    public Iterable<Product> getAllProductIndexes(){
+        return elasticSearchService.getAllProductIndexes();
+    }
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<Optional<Product>> getProductByProductId(@PathVariable("productId") Long productId){
+
+        return ResponseEntity.ok().body(elasticSearchService.getProductByProductId(productId));
     }
 }

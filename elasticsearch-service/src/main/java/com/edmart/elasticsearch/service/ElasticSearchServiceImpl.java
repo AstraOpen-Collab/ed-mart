@@ -1,29 +1,24 @@
 package com.edmart.elasticsearch.service;
 
 import com.edmart.client.exceptions.ProductNotFoundException;
-import com.edmart.client.exceptions.VendorNotFoundException;
 import com.edmart.client.product.*;
-import com.edmart.client.vendor.VendorClient;
-import com.edmart.contracts.product.InventorySchema;
-import com.edmart.contracts.product.ProductStatus;
 import com.edmart.elasticsearch.model.Product;
 import com.edmart.elasticsearch.repository.ElasticSearchRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import java.beans.PropertyDescriptor;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -52,38 +47,23 @@ public class ElasticSearchServiceImpl {
         String operation = payload.get("op").asText(); // Operation: c (create), u (update), d (delete)
         JsonNode changeData = payload.get("after"); // After-change data
 
+        Long productIdIndex = changeData.get("product_id").asLong();
 
+        if(operation.equalsIgnoreCase("c")){
+            log.info("$$$$$$$$$$$--Adding new record index---Product Schema Data: {}, operation: {}", changeData.get("name"), operation);
 
+            elasticSearchRepository.save(setProductData(changeData));
+        }else if(operation.equalsIgnoreCase("u")){
+            log.info("$$$$$$$$$$$--updating existing record index with Id: {}", productIdIndex);
 
-        log.info("$$$$$$$$$$$---Product Schema Data: {}, operation: {}", changeData.get("name"), operation);
+            Optional<Product> product = elasticSearchRepository.findById(productIdIndex);
 
-        elasticSearchRepository.save(setProductData(changeData));
+            updateElasticSearchIndex(productIdIndex, product.get());
+            log.info("Product Index updated Successfully!!");
+        }else{
+            deleteElasticIndexByProductId(productIdIndex);
+        }
 
-        log.info("################-----Payload:::: {}", changeData);
-
-        // Process the change data based on the operation
-        // Example: Log or persist the change data
-        log.info("Received Debezium message: Key={}, Operation={}, ChangeData={}", key, operation, changeData);
-
-//        Integer receivedQty = inventorySchema.getQuantity();
-//        Optional<Inventory> itemInventory = inventoryRepository.findByProductId(inventorySchema.getProductId());
-//
-//        itemInventory.ifPresentOrElse(
-//                existingInventory -> {
-//                    existingInventory.setItemQuantity(existingInventory.getItemQuantity() + receivedQty);
-//                    inventoryRepository.save(existingInventory);
-//                },
-//                () -> {
-//                    Inventory inventory = new Inventory();
-//                    inventory.setProductId(inventorySchema.getProductId());
-//                    inventory.setItemQuantity(receivedQty);
-//                    inventory.setStatus(inventorySchema.getProductStatus().toString());
-//
-//                    inventoryRepository.save(inventory);
-//                }
-//        );
-//
-//        log.info("Successfully process the item with quantity : {}", inventorySchema.getQuantity());
     }
 
     public Product setProductData(JsonNode changeData){
@@ -113,7 +93,6 @@ public class ElasticSearchServiceImpl {
 //        LocalDateTime createdAt = LocalDateTime.parse(createdAtString, formatter);
 //        LocalDateTime updatedAt = LocalDateTime.parse(updatedAtString, formatter);
 
-
         Product product = new Product();
         //product.setName(String.valueOf(jsonNodeMapper.toString()));
         product.setProductId(changeData.get("product_id").asLong());
@@ -133,8 +112,46 @@ public class ElasticSearchServiceImpl {
         return product;
     }
 
-    public void vendorCreateProduct(Long vendorId, ProductDTO productDTO) throws ProductNotFoundException {
-        productServiceClient.vendorCreateProduct(vendorId, productDTO);
+   public Optional<Product> getProductByProductId(Long productId){
+        return Optional.ofNullable(elasticSearchRepository.findProductByProductId(productId)
+                .orElseThrow(() -> new ProductNotFoundException("No such Product with this productId")));
+   }
+
+   public Iterable<Product> getAllProductIndexes(){
+        return elasticSearchRepository.findAll();
+   }
+
+    public void deleteElasticIndexByProductId(Long productId){
+        Optional<Product> product = Optional.ofNullable(elasticSearchRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product Index notr Found!")));
+
+        elasticSearchRepository.deleteById(productId);
+    }
+
+    public void updateElasticSearchIndex(Long productId, Product product){
+
+        Optional<Product> productData = Optional.of(elasticSearchRepository.findById(productId)
+                .orElseThrow(()->new ProductNotFoundException("Product Index not Found!")));
+
+
+        BeanUtils.copyProperties(product, productData.get(), getNullPropertyNames(product));
+
+        elasticSearchRepository.save(product);
+
+    }
+
+    private String[] getNullPropertyNames(Product product) {
+        BeanWrapper beanWrapper = new BeanWrapperImpl(product);
+        PropertyDescriptor[] propertyDescriptors = beanWrapper.getPropertyDescriptors();
+
+        Set<String> nullProperties = new HashSet<>();
+        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+            String propertyName = propertyDescriptor.getName();
+            if (beanWrapper.getPropertyValue(propertyName) == null) {
+                nullProperties.add(propertyName);
+            }
+        }
+        return nullProperties.toArray(new String[0]);
     }
 
 }

@@ -6,7 +6,6 @@ import com.edmart.client.product.*;
 import com.edmart.client.exceptions.ProductNotFoundException;
 import com.edmart.client.vendor.VendorClient;
 import com.edmart.contracts.product.InventorySchema;
-import com.edmart.contracts.product.ProductStatus;
 import com.edmart.product.mappers.ProductMapper;
 import com.edmart.product.model.Product;
 import com.edmart.product.repository.ProductRepository;
@@ -64,7 +63,7 @@ public class ProductServiceImpl implements ProductService {
             InventorySchema message = new InventorySchema(
                     product.getProductId(),
                     productDTO.quantity(),
-                    ProductStatus.valueOf(productDTO.status().getClass().getName())
+                    productDTO.status().getClass().getName()
             );
             SendMessageToProductInventoryTopic(message);
         }catch (Exception e){
@@ -84,15 +83,18 @@ public class ProductServiceImpl implements ProductService {
             }
 
             product.setVendorId(vendorId);
+            log.info("++++++++++++READING ENUM VALUE: {}", ProductStatus.valueOf(productDTO.status().toString()));
+
             productRepository.save(product);
 
             //Sending message to productInventoryTopic
-            log.info("++++++++++++READING ENUM VALUE: {}", productDTO.status().toString());
+            log.info("++++++++++++READING ENUM VALUE: {}", ProductStatus.valueOf(productDTO.status().toString()));
+
             SendMessageToProductInventoryTopic(
                     this.setInventorySchema(
                             product.getProductId(),
                             productDTO.quantity(),
-                            ProductStatus.valueOf(productDTO.status().toString())
+                            productDTO.status().toString()
 
                     )
             );
@@ -102,7 +104,7 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
-    public InventorySchema setInventorySchema(long productId, int quantity, ProductStatus status){
+    public InventorySchema setInventorySchema(long productId, int quantity, String status){
         return new InventorySchema(productId, quantity, status);
     }
 
@@ -209,7 +211,7 @@ public class ProductServiceImpl implements ProductService {
                         this.setInventorySchema(
                                 product.getProductId(),
                                 productDTO.quantity(),
-                                ProductStatus.valueOf(productDTO.status().toString())
+                                productDTO.status().toString()
                         )
                 );
             }
@@ -277,13 +279,21 @@ public class ProductServiceImpl implements ProductService {
 //        kafkaTemplate.send(message);
 //    }
 
-    public void SendMessageToProductInventoryTopic(InventorySchema inventorySchemaEvent){
-        log.info("sending new Inventory event data => : {}", inventorySchemaEvent);
+    public void SendMessageToProductInventoryTopic(InventorySchema inventorySchemaEvent) {
+        log.info("Sending new Inventory event data => : {}", inventorySchemaEvent);
+
         Message<InventorySchema> payload = MessageBuilder
                 .withPayload(inventorySchemaEvent)
                 .setHeader(KafkaHeaders.TOPIC, topic.name())
+                .setHeader(KafkaHeaders.MESSAGE_KEY, generateShortUUID())
                 .build();
 
         kafkaTemplate.send(payload);
     }
+
+    public static String generateShortUUID() {
+        String uuid = UUID.randomUUID().toString().replace("-", "").substring(0, 6);
+        return uuid;
+    }
+
 }

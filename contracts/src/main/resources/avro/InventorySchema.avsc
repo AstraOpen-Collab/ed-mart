@@ -5,6 +5,6 @@
   "fields": [
     {"name": "productId", "type": "long"},
     {"name": "quantity", "type": "int"},
-    {"name": "productStatus", "type": {"type": "enum", "name": "ProductStatus", "symbols": ["ACTIVE", "INACTIVE"]}}
+    {"name": "productStatus", "type": "string"}
   ]
 }
