@@ -1,25 +1,36 @@
 package com.edmart.apigw;
 
-import org.springdoc.core.models.GroupedOpenApi;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.gateway.route.RouteDefinition;
-import org.springframework.cloud.gateway.route.RouteDefinitionLocator;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
-import org.springframework.context.annotation.Bean;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import java.util.ArrayList;
-import java.util.List;
+
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
+
 
 @EnableEurekaClient
 @SpringBootApplication
-//@EnableSwagger2
+@OpenAPIDefinition(
+        info = @Info(title = "API Gateway", version = "1.0", description = "Documentation API Gateway v1.0")
+)
 public class ApiGWApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ApiGWApplication.class, args);
     }
+
+//    @Bean
+//    public RouteLocator routeLocator(RouteLocatorBuilder builder) {
+//        return builder
+//                .routes()
+//                .route(r -> r.path("/v3/api-docs/discount").and().method(HttpMethod.GET).uri("lb://discount-service"))
+//                .build();
+//    }
+
+
 
 }

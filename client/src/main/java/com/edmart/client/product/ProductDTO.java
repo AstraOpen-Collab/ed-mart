@@ -17,6 +17,7 @@ public record ProductDTO(
         byte[] image,
         Integer rating,
         Long vendorId,
+        Boolean setDiscount,
         ProductStatus status
 ) implements Serializable {
 }

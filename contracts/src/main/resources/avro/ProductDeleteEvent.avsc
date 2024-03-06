@@ -1,0 +1,8 @@
+{
+  "type": "record",
+  "name": "ProductDeleteEvent",
+  "fields": [
+    { "name": "productId", "type": "long" },
+    { "name": "productName", "type": "string" }
+  ]
+}

@@ -42,4 +42,7 @@ eureka:
   instance:
     hostname: localhost
 
+springdoc:
+  api-docs:
+    enabled: true
 

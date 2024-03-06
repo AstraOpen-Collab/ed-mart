@@ -2,10 +2,13 @@ package com.edmart.product.serviceImpl;
 
 import com.edmart.client.category.CategoryClient;
 import com.edmart.client.exceptions.VendorNotFoundException;
-import com.edmart.client.product.*;
 import com.edmart.client.exceptions.ProductNotFoundException;
+import com.edmart.client.product.ProductDTO;
+import com.edmart.client.product.ProductResponseDTO;
+import com.edmart.client.product.ProductStatus;
 import com.edmart.client.vendor.VendorClient;
 import com.edmart.contracts.product.InventorySchema;
+import com.edmart.contracts.product.ProductDeleteEvent;
 import com.edmart.product.mappers.ProductMapper;
 import com.edmart.product.model.Product;
 import com.edmart.product.repository.ProductRepository;
@@ -99,7 +102,7 @@ public class ProductServiceImpl implements ProductService {
                     )
             );
         }catch (Exception e){
-            log.error("Error creating product with vendorId: {}, caused by {}", vendorId, e.getCause());
+            log.error("Error creating product with vendorId: {}, caused by {}", vendorId, e.getMessage().toString());
         }
 
     }
@@ -174,6 +177,23 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public ProductResponseDTO getProductsByVendorId(int page, int size, String sortBy, String sortDir, Long vendorId) throws VendorNotFoundException {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.DESC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<ProductDTO> productPage = productRepository.findAllByVendorId(vendorId, pageable).map(productMapper);
+
+        ProductResponseDTO productResponseDTO=new ProductResponseDTO();
+        productResponseDTO.setProductList(productPage.getContent());
+        productResponseDTO.setPageInfoDTO(Pagination.getPageInfoDTO(productPage));
+
+        return  productResponseDTO;
+    }
+
+    @Override
     @CachePut(cacheNames = "products", key = "#productId")
     public void updateProduct(Long productId, ProductDTO productDTO) throws ProductNotFoundException {
         try{
@@ -226,11 +246,10 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(Long productId) throws ProductNotFoundException {
         Optional<ProductDTO> productDTOOptional = productRepository.findById(productId).map(productMapper);
 
-        if(productDTOOptional.isPresent()){
-            productRepository.deleteById(productId);
-        }else{
-            throw new ProductNotFoundException("Product with this Id does not exist");
-        }
+        var productDeleteEvent = new ProductDeleteEvent(productId, productDTOOptional.get().name());
+
+        productRepository.deleteById(productId);
+        sendMessageToProductDeleteTopic(productDeleteEvent);
     }
 
     @Override
@@ -239,8 +258,12 @@ public class ProductServiceImpl implements ProductService {
         Optional<ProductDTO> productDTOOptional = productRepository
                 .findProductsByVendorIdAndProductId(vendorId, productId).map(productMapper);
 
+        var productDeleteEvent = new ProductDeleteEvent(productId, productDTOOptional.get().name());
+
         if(productDTOOptional.isPresent()){
             productRepository.deleteById(productId);
+
+            sendMessageToProductDeleteTopic(productDeleteEvent);
         }else{
             throw new ProductNotFoundException("Product with this vendorId and productId does not exist");
         }
@@ -284,7 +307,19 @@ public class ProductServiceImpl implements ProductService {
 
         Message<InventorySchema> payload = MessageBuilder
                 .withPayload(inventorySchemaEvent)
-                .setHeader(KafkaHeaders.TOPIC, topic.name())
+                .setHeader(KafkaHeaders.TOPIC,"product_inventory_topic")
+                .setHeader(KafkaHeaders.MESSAGE_KEY, generateShortUUID())
+                .build();
+
+        kafkaTemplate.send(payload);
+    }
+
+    public void sendMessageToProductDeleteTopic(ProductDeleteEvent productDeleteEvent) {
+        log.info("Sending new Product Delete event data => : {}", productDeleteEvent);
+
+        Message<ProductDeleteEvent> payload = MessageBuilder
+                .withPayload(productDeleteEvent)
+                .setHeader(KafkaHeaders.TOPIC, "product_delete_topic")
                 .setHeader(KafkaHeaders.MESSAGE_KEY, generateShortUUID())
                 .build();
 

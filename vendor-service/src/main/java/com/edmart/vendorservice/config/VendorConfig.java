@@ -11,6 +11,7 @@ import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.plugin.core.SimplePluginRegistry;
 import org.springframework.web.client.RestTemplate;
 import org.xmlpull.v1.XmlPullParserException;
+import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
@@ -37,16 +38,25 @@ public class VendorConfig {
     }
 
     @Bean
-    public Docket api() throws IOException, XmlPullParserException {
-//        MavenXpp3Reader reader = new MavenXpp3Reader();
-//        Model model = reader.read(new FileReader("pom.xml"));
+    public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.edmart.vendorservice.controller"))
                 .paths(PathSelectors.any())
-                .build().apiInfo(new ApiInfo("Documentation Name: Vendor Service", "This API Documentation provides description to the various endpoints that makes up the Vendor-Service. It also provides description and ways to use the onsite web tool provided by swagger2 to test all the endpoints found in the controller classes found in the com.edmart.vendorservice.controller package.", version, null, new Contact("Developers: Nestor Martourez", "vendor-service.edmart.com", "mail.astraopencollab@gmail.com"), " Apache License, Version 2.0", "https://opensource.org/license/apache-2-0/"));
+                .build()
+                .apiInfo(apiInfo()); // Refactored for better organization
     }
 
+    private ApiInfo apiInfo() {
+        return new ApiInfoBuilder()
+                .title("Vendor Service API Documentation") // Concise title
+                .description("REST API endpoints for Vendor Service interactions.") // Clearer description
+                .version("1.0.0") // Replace with actual version
+                .contact(new Contact("Nestor Martourez", "vendor-service.edmart.com", "mail.astraopencollab@gmail.com"))
+                .license("Apache License, Version 2.0")
+                .licenseUrl("https://opensource.org/licenses/apache-2.0/")
+                .build();
+    }
     @Bean
     public NewTopic vendorKafkaTopic(){
         return TopicBuilder.name("vendor-topic")

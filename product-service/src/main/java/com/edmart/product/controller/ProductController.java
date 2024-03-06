@@ -59,10 +59,21 @@ public class ProductController {
         return ResponseEntity.ok().body(productService.getProduct(Id));
     }
 
+//    @GetMapping("/vendors/{vendorId}")
+//    public ResponseEntity<Optional<List<ProductDTO>>> getAllProductsByVendorId(@PathVariable("vendorId") Long vendorId) throws VendorNotFoundException {
+//        log.info("Retrieving all items with vendor Id: {}", vendorId);
+//        return ResponseEntity.ok().body(productService.getAllProductsByVendorId(vendorId));
+//    }
+
     @GetMapping("/vendors/{vendorId}")
-    public ResponseEntity<Optional<List<ProductDTO>>> getAllProductsByVendorId(@PathVariable("vendorId") Long vendorId) throws VendorNotFoundException {
-        log.info("Retrieving all items with vendor Id: {}", vendorId);
-        return ResponseEntity.ok().body(productService.getAllProductsByVendorId(vendorId));
+    public ResponseEntity<ProductResponseDTO> getAllVendorProducts(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                             @RequestParam(value = "size", defaultValue = "5") int size,
+                                                             @RequestParam(value = "sortBy", defaultValue = "createdAt", required = false) String sortBy,
+                                                             @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir,
+                                                                @PathVariable Long vendorId) throws VendorNotFoundException {
+        log.info("Retrieving all products: {}", productService.getProductsByVendorId(page, size,sortBy, sortDir, vendorId));
+
+        return ResponseEntity.ok().body(productService.getProductsByVendorId(page, size,sortBy, sortDir, vendorId));
     }
 
     @PutMapping("/{productId}")

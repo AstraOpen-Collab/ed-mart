@@ -40,29 +40,38 @@ public class ElasticSearchServiceImpl {
         // Parse and process the Debezium message
         // Example: Use ObjectMapper to deserialize the JSON payload
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(value);
-        JsonNode payload = jsonNode.get("payload");
 
-        // Extract relevant information
-        String operation = payload.get("op").asText(); // Operation: c (create), u (update), d (delete)
-        JsonNode changeData = payload.get("after"); // After-change data
+        try{
+            JsonNode jsonNode = objectMapper.readTree(value);
+            JsonNode payload = jsonNode.get("payload");
 
-        Long productIdIndex = changeData.get("product_id").asLong();
 
-        if(operation.equalsIgnoreCase("c")){
-            log.info("$$$$$$$$$$$--Adding new record index---Product Schema Data: {}, operation: {}", changeData.get("name"), operation);
+            // Extract relevant information
+            String operation = payload.get("op").asText(); // Operation: c (create), u (update), d (delete)
+            JsonNode changeData = payload.get("after"); // After-change data
 
-            elasticSearchRepository.save(setProductData(changeData));
-        }else if(operation.equalsIgnoreCase("u")){
-            log.info("$$$$$$$$$$$--updating existing record index with Id: {}", productIdIndex);
+            Long productIdIndex = changeData.get("product_id").asLong();
 
-            Optional<Product> product = elasticSearchRepository.findById(productIdIndex);
+            if(operation.equalsIgnoreCase("c")){
 
-            updateElasticSearchIndex(productIdIndex, product.get());
-            log.info("Product Index updated Successfully!!");
-        }else{
-            deleteElasticIndexByProductId(productIdIndex);
+                log.info("$$$$$$$$$$$--Adding new record index---Product Schema Data: {}, operation: {}", changeData.get("name"), record.key());
+
+                elasticSearchRepository.save(setProductData(changeData));
+            }else if(operation.equalsIgnoreCase("u")){
+                log.info("$$$$$$$$$$$--updating existing record index with Id: {}", productIdIndex);
+
+                Product product = elasticSearchRepository.findById(productIdIndex)
+                        .orElseThrow(()->new ProductNotFoundException("Product Index does not exist!"));
+
+                updateElasticSearchIndex(productIdIndex, product);
+                log.info("Product Index updated Successfully!!");
+            }else{
+                log.info("Product Index Deleted!!");
+            }
+        }catch (Exception exception){
+            log.warn("Operation is a delete: {}", record.key());
         }
+
 
     }
 
@@ -82,7 +91,8 @@ public class ElasticSearchServiceImpl {
 
         Prices prices = new Prices(
                 changeData.get("old_price").decimalValue(),
-                changeData.get("new_price").decimalValue()
+                changeData.get("new_price").decimalValue(),
+                changeData.get("discount_price").decimalValue()
         );
 
         String createdAtString = changeData.get("created_at").asText();
@@ -128,6 +138,11 @@ public class ElasticSearchServiceImpl {
         elasticSearchRepository.deleteById(productId);
     }
 
+    public void deleteProductIndex(Long productId){
+        elasticSearchRepository.deleteById(productId);
+        log.info("Product Index Deleted Successfully!");
+    }
+
     public void updateElasticSearchIndex(Long productId, Product product){
 
         Optional<Product> productData = Optional.of(elasticSearchRepository.findById(productId)
@@ -152,6 +167,15 @@ public class ElasticSearchServiceImpl {
             }
         }
         return nullProperties.toArray(new String[0]);
+    }
+
+        @KafkaListener(
+            topics = "product_delete_topic",
+            groupId = "${spring.kafka.consumer.group-id}"
+    )
+    public void consumeProductDeleteEvent(ProductDeleteEvent productDeleteEvent){
+         Long productId = productDeleteEvent.productId();
+         deleteProductIndex(productId);
     }
 
 }

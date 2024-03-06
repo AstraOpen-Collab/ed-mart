@@ -26,4 +26,11 @@ public class ElasticsearchController {
 
         return ResponseEntity.ok().body(elasticSearchService.getProductByProductId(productId));
     }
+
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<String> deleteProductIndexById(@PathVariable("productId") Long productId){
+        elasticSearchService.deleteElasticIndexByProductId(productId);
+
+        return ResponseEntity.ok().body("Product Index deleted Successfully!");
+    }
 }
