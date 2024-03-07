@@ -23,14 +23,4 @@ public class ApiGWApplication {
         SpringApplication.run(ApiGWApplication.class, args);
     }
 
-//    @Bean
-//    public RouteLocator routeLocator(RouteLocatorBuilder builder) {
-//        return builder
-//                .routes()
-//                .route(r -> r.path("/v3/api-docs/discount").and().method(HttpMethod.GET).uri("lb://discount-service"))
-//                .build();
-//    }
-
-
-
 }

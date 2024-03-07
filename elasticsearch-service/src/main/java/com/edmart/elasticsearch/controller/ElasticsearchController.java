@@ -12,6 +12,7 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/search/products")
+@CrossOrigin(origins = {"http://localhost:8083", "http://localhost:8089"} )
 public class ElasticsearchController {
 
     private final ElasticSearchServiceImpl elasticSearchService;

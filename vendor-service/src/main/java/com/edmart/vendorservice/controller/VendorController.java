@@ -8,10 +8,7 @@ import com.edmart.client.product.ProductResponseDTO;
 import com.edmart.client.product.ProductServiceClient;
 import com.edmart.client.vendor.VendorRecord;
 import com.edmart.client.vendor.VendorResponse;
-import com.edmart.vendorservice.exception.VendorCreationSuccessException;
 import com.edmart.vendorservice.service.VendorServiceImpl;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.EntityModel;
@@ -21,14 +18,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/v1/vendors")
-@Api(value = "Vendor Service", description = "Operations related to vendor service")
+@CrossOrigin(origins = {"http://localhost:8083", "http://localhost:8082"} )
 public class VendorController {
 
     private final VendorServiceImpl vendorService;
@@ -45,7 +41,6 @@ public class VendorController {
 
     private final static String SORTDIR = "asc";
 
-    @ApiOperation(value = "Get a list of vendors", response = List.class)
     @GetMapping
     public ResponseEntity<VendorResponse> getAllVendors(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,

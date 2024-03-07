@@ -58,7 +58,6 @@ spring:
             reader: "true"
 
 
-
 eureka:
   client:
     service-url:

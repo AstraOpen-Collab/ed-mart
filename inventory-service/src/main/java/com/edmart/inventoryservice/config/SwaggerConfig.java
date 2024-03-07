@@ -1,5 +1,4 @@
-package com.edmart.elasticsearch.config;
-
+package com.edmart.inventoryservice.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -9,23 +8,22 @@ import org.springdoc.core.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-
 @Configuration
-public class ElasticsearchDocConfig {
+public class SwaggerConfig {
 
     @Bean
     public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
-                .group("elasticsearch-service")
-                .packagesToScan("com.edmart.elasticsearch.controller")
+                .group("inventory-service")
+                .packagesToScan("com.edmart.inventoryservice.controller")
                 .build();
     }
 
     @Bean
     public OpenAPI springShopOpenAPI() {
         return new OpenAPI()
-                .info(new Info().title("Elasticsearch Service")
-                        .description("Elasticsearch API")
+                .info(new Info().title("Inventory Service")
+                        .description("Inventory API")
                         .contact(contact())
                         .version("1.0")
                         .license(new License().name("Apache 2.0").url("http://springdoc.org")));
@@ -34,7 +32,7 @@ public class ElasticsearchDocConfig {
     public Contact contact(){
         return new Contact()
                 .name("Developers: Nestor Martourez")
-                .url("elasticsearch-service.edmart.com")
+                .url("inventory-service.edmart.com")
                 .email("mail.astraopencollab@gmail.com");
     }
 }

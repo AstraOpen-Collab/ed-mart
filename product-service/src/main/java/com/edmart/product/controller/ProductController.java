@@ -19,6 +19,7 @@ import java.util.Optional;
 @RequestMapping("/api/v1/products")
 @AllArgsConstructor
 @Slf4j
+@CrossOrigin(origins = {"http://localhost:8083", "http://localhost:8086"} )
 public class ProductController {
 
     private final ProductService productService;
