@@ -2,23 +2,14 @@ package com.edmart.category.entity;
 
 import javax.persistence.*;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import com.netflix.discovery.provider.Serializer;
-import io.swagger.annotations.ApiModel;
+
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.data.redis.core.RedisHash;
 
 import java.io.Serializable;
-import java.util.Objects;
 
-@ApiModel(description = "This class documents all the fields and data types involve in describing the Sub-Category entity")
 @Entity
 @Data
 @Builder

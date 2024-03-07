@@ -1,0 +1,26 @@
+{
+  "type": "record",
+  "name": "CategoryDiscountEvent",
+  "fields": [
+    {
+      "name": "categoryId",
+      "type": "long"
+    },
+    {
+      "name": "percentage",
+      "type": "double"
+    },
+    {
+      "name": "startDate",
+      "type": "long"
+    },
+    {
+      "name": "hours",
+      "type": "int"
+    },
+    {
+      "name": "discountCode",
+      "type": "string"
+    }
+  ]
+}

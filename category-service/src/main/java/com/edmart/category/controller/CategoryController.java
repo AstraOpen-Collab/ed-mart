@@ -3,9 +3,7 @@ package com.edmart.category.controller;
 import com.edmart.category.dto.CategoryDTO;
 import com.edmart.category.dto.CategoryResponseDTO;
 import com.edmart.category.exception.CategoryNotFoundException;
-import com.edmart.category.service.CategoryService;
 import com.edmart.category.serviceImpl.CategoryServiceImpl;
-import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +16,12 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/categories")
 @AllArgsConstructor
 @Slf4j
+@CrossOrigin(origins = {"http://localhost:8083", "http://localhost:8085"} )
 public class CategoryController {
 
     private final CategoryServiceImpl categoryService;
 
-    @ApiOperation(value = "Retrieve all categories",
-            notes = "This method get all the various categories through a response object",
-            response = CategoryResponseDTO.class)
+
     @GetMapping
     public ResponseEntity<CategoryResponseDTO> getAllCategories(@RequestParam(defaultValue = "0") int page,
                                                                 @RequestParam(defaultValue = "5") int size,

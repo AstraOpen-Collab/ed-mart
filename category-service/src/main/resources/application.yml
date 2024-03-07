@@ -55,6 +55,12 @@ spring:
 #        security:
 #          protocol: PLAINTEXT
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs/category-service
+  swagger-ui:
+    path: /category-service/swagger-ui.html
+
 
 eureka:
   client:

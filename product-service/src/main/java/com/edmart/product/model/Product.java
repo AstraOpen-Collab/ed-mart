@@ -63,5 +63,7 @@ public class Product extends BaseEntity implements Serializable {
 
     private Long vendorId;
 
+    private Boolean setDiscount;
+
     private ProductStatus status;
 }

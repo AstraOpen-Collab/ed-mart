@@ -22,6 +22,8 @@ public interface ProductService {
 
     Optional<List<ProductDTO>> getAllProductsByVendorId(Long vendorId) throws VendorNotFoundException;
 
+    ProductResponseDTO getProductsByVendorId(int page, int size, String sortBy, String sortDir, Long vendorId) throws VendorNotFoundException;
+
     void updateProduct(Long productId, ProductDTO productDTO) throws ProductNotFoundException;
 
     void updateVendorProduct(Long vendorId, Long productId, ProductDTO productDTO) throws VendorNotFoundException, ProductNotFoundException;

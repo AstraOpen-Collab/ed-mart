@@ -4,13 +4,12 @@ package com.edmart.vendorservice.controller;
 import com.edmart.client.exceptions.ProductNotFoundException;
 import com.edmart.client.exceptions.VendorNotFoundException;
 import com.edmart.client.product.ProductDTO;
+import com.edmart.client.product.ProductResponseDTO;
 import com.edmart.client.product.ProductServiceClient;
 import com.edmart.client.vendor.VendorRecord;
 import com.edmart.client.vendor.VendorResponse;
-import com.edmart.vendorservice.exception.VendorCreationSuccessException;
-import com.edmart.vendorservice.service.VendorManagementServiceImpl;
 import com.edmart.vendorservice.service.VendorServiceImpl;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
@@ -19,13 +18,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@RequiredArgsConstructor
+@AllArgsConstructor
 @RestController
 @RequestMapping("/api/v1/vendors")
+@CrossOrigin(origins = {"http://localhost:8083", "http://localhost:8082"} )
 public class VendorController {
 
     private final VendorServiceImpl vendorService;
@@ -74,7 +73,7 @@ public class VendorController {
         EntityModel<VendorRecord> resource = EntityModel.of(vendorService.getVendorById(vendorId));
         resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllVendors(PAGENO, PAGESIZE, SORTBY, SORTDIR))
                 .withRel("get_all_available_vendors"));
-        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllProducts(vendorId))
+        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getVendorProducts(PAGENO, PAGESIZE, SORTBY, SORTDIR, vendorId))
                 .withRel("get_all_vendor_products"));
 
         log.info("Vendor retrieved successfully: {}", resource);
@@ -83,10 +82,15 @@ public class VendorController {
     }
 
     @GetMapping("/{vendorId}/products")
-    public ResponseEntity<Optional<List<ProductDTO>>> getAllProducts(@PathVariable("vendorId") Long vendorId) throws VendorNotFoundException {
-        log.info("retrieving all available products");
+    public ResponseEntity<ProductResponseDTO> getVendorProducts(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            @RequestParam(value = "sortBy", defaultValue = "createdAt", required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir,
+            @PathVariable("vendorId") Long vendorId) throws VendorNotFoundException {
+        log.info("retrieving all available vendor products");
 
-        return productServiceClient.getAllProductsByVendorId(vendorId);
+        return productServiceClient.getAllVendorProducts(page, size, sortBy, sortDir, vendorId);
     }
 
     @GetMapping("/name/{name}")
@@ -104,7 +108,7 @@ public class VendorController {
 //    }
 
     @PostMapping
-    public ResponseEntity<String> createVendor(@RequestBody VendorRecord vendorRecord) throws VendorNotFoundException, VendorCreationSuccessException {
+    public ResponseEntity<String> createVendor(@RequestBody VendorRecord vendorRecord) throws VendorNotFoundException {
        // kafkaTemplate.send("vendor-topic", "string", vendorRecord);
         vendorService.createNewVendor(vendorRecord);
         log.info("Vendor created successfully: {}", vendorRecord);
@@ -130,7 +134,7 @@ public class VendorController {
     @PostMapping("/{vendorId}/products")
     public ResponseEntity<String> vendorCreateProduct(@PathVariable("vendorId") Long vendorId,
                                                      @RequestBody ProductDTO productDTO) throws VendorNotFoundException {
-        log.info("{} creating product with name: {}", getVendorById(vendorId).getContent().vendorName(), productDTO.name());
+        //log.info("{} creating product with name: {}", getVendorById(vendorId).getContent().vendorName(), productDTO.name());
         productServiceClient.vendorCreateProduct(vendorId, productDTO);
 
         return ResponseEntity.ok().body("Product Created Successfully!");

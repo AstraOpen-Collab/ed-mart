@@ -16,47 +16,75 @@ spring:
         - id: category-service
           uri: lb://CATEGORY
           predicates:
-            - Path=/api/v1/categories/**, /api/v1/sub-categories/**
+            - Path=/api/v1/categories/**, /api/v1/sub-categories/**, /v3/api-docs/category-service
+#          filters:
+#            - RewritePath=/api/v1/categories/(?<remaining>.*), /$\{remaining}
+#            - RewritePath=/api/v1/sub-categories/(?<remaining>.*), /$\{remaining}
 
         - id: product
           uri: lb://PRODUCT-SERVICE
           predicates:
-            - Path=/api/v1/products/**
+            - Path=/api/v1/products/**, /v3/api-docs/product-service
+#          filters:
+#            - RewritePath=/api/v1/products/(?<remaining>.*), /$\{remaining}
 
 
         - id: vendor-service
           uri: lb://VENDOR-SERVICE
           predicates:
-            - Path=/api/v1/vendors/**
+            - Path=/api/v1/vendors/**, /v3/api-docs/vendor-service
+          filters:
+            - RewritePath=/api/v1/vendors/(?<remaining>.*), /$\{remaining}
 
         - id: inventory-service
           uri: lb://INVENTORY-SERVICE
           predicates:
-            - Path=/api/v1/inventories/**
+            - Path=/api/v1/inventories/**, /v3/api-docs/inventory-service
 
         - id: elasticsearch-service
           uri: lb://ELASTICSEARCH-SERVICE
           predicates:
-            - Path=/api/v1/search/products/**
+            - Path=/api/v1/search/products/**, /v3/api-docs/elasticsearch-service
 
-#        - id: openapi
-#          uri: lb://API-GATEWAY
-#          predicates:
-#            - Path=/v3/api-docs/**
+        - id: discount-service
+          uri: lb://DISCOUNT-SERVICE
+          predicates:
+            - Path=/api/v1/discounts/**, /v3/api-docs/discount-service
 #          filters:
 #            - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
 
+        - id: openapi
+          uri: lb://API-GATEWAY
+          predicates:
+            - Path=/v3/api-docs/**
+          filters:
+            - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+
+
 
 springdoc:
+  enable-native-support: true
+  api-docs:
+    enabled: true
   swagger-ui:
-      urls:
-        - name: category
-          url: /v3/api-docs/category
-        - name: product
-          url: /v3/api-docs/product
-        - name: vendor
-          url: /v3/api-docs/vendor
-
+    enabled: true
+    path: /swagger-ui/index.html
+    config-url: /v3/api-docs/swagger-config
+    urls:
+      - url: /v3/api-docs
+        name: API Gateway Service
+      - url: /v3/api-docs/discount-service
+        name: Discount Service
+      - url: /v3/api-docs/category-service
+        name: Category Service
+      - url: /v3/api-docs/elasticsearch-service
+        name: Elasticsearch Service
+      - url: /v3/api-docs/product-service
+        name: Product Service
+      - url: /v3/api-docs/vendor-service
+        name: Vendor Service
+      - url: /v3/api-docs/inventory-service
+        name: Inventory Service
 
 
 eureka:

@@ -24,6 +24,7 @@ public class ProductMapper implements Function<Product, ProductDTO> {
                 product.getImage(),
                 product.getRating(),
                 product.getVendorId(),
+                product.getSetDiscount(),
                 product.getStatus()
         );
     }

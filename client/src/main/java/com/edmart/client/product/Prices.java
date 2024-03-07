@@ -18,4 +18,5 @@ public class Prices implements Serializable{
 
     private BigDecimal oldPrice;
     private BigDecimal newPrice;
+    private BigDecimal discountPrice;
 }
