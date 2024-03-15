@@ -16,6 +16,7 @@
       <module>inventory-service</module>
       <module>discount-service</module>
       <module>elasticsearch-service</module>
+      <module>cart-service</module>
   </modules>
   <name>ed-mart</name>
 
