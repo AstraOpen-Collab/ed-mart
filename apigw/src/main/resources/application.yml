@@ -52,6 +52,10 @@ spring:
             - Path=/api/v1/discounts/**, /v3/api-docs/discount-service
 #          filters:
 #            - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+        - id: cart-service
+          uri: lb://CART-SERVICE
+          predicates:
+            - Path=/api/v1/cartItems/**, /v3/api-docs/cart-service
 
         - id: openapi
           uri: lb://API-GATEWAY
@@ -84,7 +88,9 @@ springdoc:
       - url: /v3/api-docs/vendor-service
         name: Vendor Service
       - url: /v3/api-docs/inventory-service
-        name: Inventory Service
+        name: Inventory
+      - url: /v3/api-docs/cart-service
+        name: Cart Service
 
 
 eureka:
